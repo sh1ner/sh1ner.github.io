@@ -79,22 +79,22 @@
 
 
 
-<meta name="description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目">
+<meta name="description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目。">
 <meta name="keywords" content="pwn,ctf">
 <meta property="og:type" content="article">
-<meta property="og:title" content="高校战&quot;疫&quot;ctf twochunk解析">
+<meta property="og:title" content="高校战&quot;疫&quot;ctf twochunk解析——smallbins利用">
 <meta property="og:url" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/index.html">
 <meta property="og:site_name" content="luckyu&#39;s blog">
-<meta property="og:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目">
+<meta property="og:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/1.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/2.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/3.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/4.png">
-<meta property="og:updated_time" content="2020-03-10T06:46:44.155Z">
+<meta property="og:updated_time" content="2020-03-12T11:03:43.074Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="高校战&quot;疫&quot;ctf twochunk解析">
-<meta name="twitter:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目">
+<meta name="twitter:title" content="高校战&quot;疫&quot;ctf twochunk解析——smallbins利用">
+<meta name="twitter:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目。">
 <meta name="twitter:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/1.png">
 
 
@@ -131,7 +131,7 @@
 
 
 
-  <title>高校战"疫"ctf twochunk解析 | luckyu's blog</title>
+  <title>高校战"疫"ctf twochunk解析——smallbins利用 | luckyu's blog</title>
   
 
 
@@ -297,7 +297,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">高校战"疫"ctf twochunk解析</h1>
+          <h1 class="post-title" itemprop="name headline">高校战"疫"ctf twochunk解析——smallbins利用</h1>
         
 
         <div class="post-meta">
@@ -347,8 +347,9 @@
       
 
       
-        <p>这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目</p>
+        <p>这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目。</p>
 <a id="more"></a>
+<p>队伍的全部wp：<a href="http://nextcloud.chamd5.org/index.php/s/EYTZB4zgtqsfcge" target="_blank" rel="noopener">http://nextcloud.chamd5.org/index.php/s/EYTZB4zgtqsfcge</a><br>PS：今天看到出题的t1an5t师傅将这种利用方法叫做tcache stash unlink attack plus</p>
 <h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>直接看源码吧</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">     If a small request, check regular bin.  Since these "smallbins"</span></span><br><span class="line"><span class="comment">     hold one size each, no searching within bins is necessary.</span></span><br><span class="line"><span class="comment">     (For a large request, we need to wait until unsorted chunks are</span></span><br><span class="line"><span class="comment">     processed to find best fit. But for small ones, fits are exact</span></span><br><span class="line"><span class="comment">     anyway, so we can check now, which is faster.)</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">if</span> (in_smallbin_range (nb))</span><br><span class="line">    &#123;</span><br><span class="line">      idx = smallbin_index (nb);</span><br><span class="line">      bin = bin_at (av, idx);</span><br><span class="line">      <span class="keyword">if</span> ((victim = last (bin)) != bin)</span><br><span class="line">        &#123;</span><br><span class="line">          bck = victim-&gt;bk;</span><br><span class="line">	  <span class="keyword">if</span> (__glibc_unlikely (bck-&gt;fd != victim))</span><br><span class="line">	    malloc_printerr (<span class="string">"malloc(): smallbin double linked list corrupted"</span>);</span><br><span class="line">          set_inuse_bit_at_offset (victim, nb);</span><br><span class="line">          bin-&gt;bk = bck;</span><br><span class="line">          bck-&gt;fd = bin;</span><br><span class="line">          <span class="keyword">if</span> (av != &amp;main_arena)</span><br><span class="line">	    set_non_main_arena (victim);</span><br><span class="line">          check_malloced_chunk (av, victim, nb);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> USE_TCACHE</span></span><br><span class="line">	  <span class="comment">/* While we're here, if we see other chunks of the same size,</span></span><br><span class="line"><span class="comment">	     stash them in the tcache.  */</span></span><br><span class="line">	  <span class="keyword">size_t</span> tc_idx = csize2tidx (nb);</span><br><span class="line">	  <span class="keyword">if</span> (tcache &amp;&amp; tc_idx &lt; mp_.tcache_bins)</span><br><span class="line">	    &#123;</span><br><span class="line">	      mchunkptr tc_victim;</span><br><span class="line">	      <span class="comment">/* While bin not empty and tcache not full, copy chunks over.  */</span></span><br><span class="line">	      <span class="keyword">while</span> (tcache-&gt;counts[tc_idx] &lt; mp_.tcache_count</span><br><span class="line">		     &amp;&amp; (tc_victim = last (bin)) != bin)</span><br><span class="line">		&#123;</span><br><span class="line">		  <span class="keyword">if</span> (tc_victim != <span class="number">0</span>)</span><br><span class="line">		    &#123;</span><br><span class="line">		      bck = tc_victim-&gt;bk;</span><br><span class="line">		      set_inuse_bit_at_offset (tc_victim, nb);</span><br><span class="line">		      <span class="keyword">if</span> (av != &amp;main_arena)</span><br><span class="line">			set_non_main_arena (tc_victim);</span><br><span class="line">		      bin-&gt;bk = bck;</span><br><span class="line">		      bck-&gt;fd = bin;</span><br><span class="line">		      tcache_put (tc_victim, tc_idx);</span><br><span class="line">	            &#125;</span><br><span class="line">		&#125;</span><br><span class="line">	    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
 
@@ -527,6 +528,12 @@
                     <a href="https://github.com/sh1ner" target="_blank" title="GitHub">
                       
                         <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ftrcjq@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
                   </span>
                 
             </div>
