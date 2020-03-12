@@ -79,22 +79,22 @@
 
 
 
-<meta name="description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目。">
+<meta name="description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目，一个小突破吧。">
 <meta name="keywords" content="pwn,ctf">
 <meta property="og:type" content="article">
-<meta property="og:title" content="高校战&quot;疫&quot;ctf twochunk解析——smallbins利用">
+<meta property="og:title" content="高校战&quot;疫&quot;ctf twochunk解析">
 <meta property="og:url" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/index.html">
 <meta property="og:site_name" content="luckyu&#39;s blog">
-<meta property="og:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目。">
+<meta property="og:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目，一个小突破吧。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/1.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/2.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/3.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/4.png">
-<meta property="og:updated_time" content="2020-03-12T11:03:43.074Z">
+<meta property="og:updated_time" content="2020-03-12T11:05:56.338Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="高校战&quot;疫&quot;ctf twochunk解析——smallbins利用">
-<meta name="twitter:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目。">
+<meta name="twitter:title" content="高校战&quot;疫&quot;ctf twochunk解析">
+<meta name="twitter:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目，一个小突破吧。">
 <meta name="twitter:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/1.png">
 
 
@@ -131,7 +131,7 @@
 
 
 
-  <title>高校战"疫"ctf twochunk解析——smallbins利用 | luckyu's blog</title>
+  <title>高校战"疫"ctf twochunk解析 | luckyu's blog</title>
   
 
 
@@ -297,7 +297,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">高校战"疫"ctf twochunk解析——smallbins利用</h1>
+          <h1 class="post-title" itemprop="name headline">高校战"疫"ctf twochunk解析</h1>
         
 
         <div class="post-meta">
@@ -347,7 +347,7 @@
       
 
       
-        <p>这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目。</p>
+        <p>这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目，一个小突破吧。</p>
 <a id="more"></a>
 <p>队伍的全部wp：<a href="http://nextcloud.chamd5.org/index.php/s/EYTZB4zgtqsfcge" target="_blank" rel="noopener">http://nextcloud.chamd5.org/index.php/s/EYTZB4zgtqsfcge</a><br>PS：今天看到出题的t1an5t师傅将这种利用方法叫做tcache stash unlink attack plus</p>
 <h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>直接看源码吧</p>
