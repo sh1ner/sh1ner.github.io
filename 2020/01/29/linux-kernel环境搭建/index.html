@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://sh1ner.github.io/2020/01/29/linux-kernel环境搭建/images/%E7%BC%96%E8%AF%91%E5%AE%8C%E6%88%90.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/01/29/linux-kernel环境搭建/images/%E7%BC%96%E8%BE%91makefile.png">
-<meta property="og:updated_time" content="2020-01-29T04:22:51.684Z">
+<meta property="og:updated_time" content="2020-03-14T01:25:23.938Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="linux kernel环境搭建">
 <meta name="twitter:description" content="好久没更新博客了，很大原因是因为网上有太多大师傅总结的都比较好，自己又太菜，能写出来的干货太少了。希望利用这个假期来学习一下linux kernel相关">
@@ -350,6 +350,9 @@
 <h2 id="内核编译"><a href="#内核编译" class="headerlink" title="内核编译"></a>内核编译</h2><p>安装所需要的依赖：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc</span><br></pre></td></tr></table></figure>
 
+<p>安装qemu及其依赖：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install git libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev</span><br><span class="line">$ sudo apt-get install qemu</span><br></pre></td></tr></table></figure>
+
 <p>下载kernel源代码，我这里选择了linux-4.4.73版本</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/linux-4.4.73.tar.gz</span><br><span class="line">tar -zxvf linux-4.4.73.tar.gz</span><br><span class="line">cd linux-4.4.73</span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
 
@@ -386,9 +389,9 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd _install</span><br><span class="line">mkdir proc</span><br><span class="line">mkdir sys</span><br><span class="line">touch init</span><br><span class="line">chmod +x init</span><br></pre></td></tr></table></figure>
 
 <p>在init文件中写入下面内容：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">!/bin/sh</span><br><span class="line">echo &quot;&#123;==DBG==&#125; INIT SCRIPT&quot;</span><br><span class="line">mkdir /tmp</span><br><span class="line">mount -t proc none /proc</span><br><span class="line">mount -t sysfs none /sys</span><br><span class="line">mount -t debugfs none /sys/kernel/debug</span><br><span class="line">mount -t tmpfs none /tmp</span><br><span class="line"># insmod /xxx.ko # load ko</span><br><span class="line">mdev -s # We need this to find /dev/sda later</span><br><span class="line">echo -e &quot;&#123;==DBG==&#125; Boot took $(cut -d&apos; &apos; -f1 /proc/uptime) seconds&quot;</span><br><span class="line">setsid /bin/cttyhack setuidgid 1000 /bin/sh #normal user</span><br><span class="line"># exec /bin/sh #root</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/sh</span><br><span class="line">echo &quot;&#123;==DBG==&#125; INIT SCRIPT&quot;</span><br><span class="line">mkdir /tmp</span><br><span class="line">mount -t proc none /proc</span><br><span class="line">mount -t sysfs none /sys</span><br><span class="line">mount -t debugfs none /sys/kernel/debug</span><br><span class="line">mount -t tmpfs none /tmp</span><br><span class="line"># insmod /xxx.ko # load ko</span><br><span class="line">mdev -s # We need this to find /dev/sda later</span><br><span class="line">echo -e &quot;&#123;==DBG==&#125; Boot took $(cut -d&apos; &apos; -f1 /proc/uptime) seconds&quot;</span><br><span class="line">setsid /bin/cttyhack setuidgid 1000 /bin/sh #normal user</span><br><span class="line"># exec /bin/sh #root</span><br></pre></td></tr></table></figure>
 
-<p>init作用是内核初始化，insmod作用于将指定模块加载到内核中<br>然后可以在上层目录中写一个如下脚本用来打包rootfs</p>
+<p>init作用是内核初始化，insmod作用于将指定模块加载到内核中<br>然后可以写一个如下脚本用来打包rootfs</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/sh</span><br><span class="line">echo &quot;Generate rootfs.img&quot;</span><br><span class="line">cd busybox # fs folder</span><br><span class="line">find . | cpio -o --format=newc &gt; ../rootfs.img</span><br></pre></td></tr></table></figure>
 
 <h2 id="编译ko文件"><a href="#编译ko文件" class="headerlink" title="编译ko文件"></a>编译ko文件</h2><p>在内核源代码根目录下，创建ko目录编辑hello.c和Makefile文件<br>hello.c:</p>
