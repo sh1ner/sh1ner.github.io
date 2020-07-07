@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://sh1ner.github.io/2020/07/07/SCTF-2020-PWN/</loc>
+    
+    <lastmod>2020-07-07T00:38:17.907Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://sh1ner.github.io/2020/03/20/starctf-chrome-oob/</loc>
     
-    <lastmod>2020-03-21T03:38:23.129Z</lastmod>
+    <lastmod>2020-03-21T03:40:43.383Z</lastmod>
     
   </url>
   

