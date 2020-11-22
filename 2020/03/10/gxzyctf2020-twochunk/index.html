@@ -91,7 +91,7 @@
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/2.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/3.png">
 <meta property="og:image" content="https://sh1ner.github.io/2020/03/10/gxzyctf2020-twochunk/images/4.png">
-<meta property="og:updated_time" content="2020-03-12T11:06:48.671Z">
+<meta property="og:updated_time" content="2020-11-22T03:53:02.443Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="高校战&quot;疫&quot;ctf twochunk解析">
 <meta name="twitter:description" content="这道twochunk是花了点时间去研究libc-2.30源码解出，算是自己第一次没用现有办法研究出的pwn堆利用题目，一个小突破吧。">
@@ -367,7 +367,7 @@
 <blockquote>
 <p>1.将fake chunk放入tcache中<br>2.可以在fake chunk-&gt;fd中写入一个地址，这个地址通常是main_arena偏移的地址</p>
 </blockquote>
-<h2 id="利用过程"><a href="#利用过程" class="headerlink" title="利用过程"></a>利用过程</h2><p>构造在smallbins中有两个chunk:<br><img src="images/1.png" alt><br>修改后面进入的chunk-&gt;bk为fake chunk：<br><img src="images/2.png" alt><br>接下来我们申请出一个chunk，再次查看：<br><img src="images/3.png" alt><br><img src="images/4.png" alt><br>大功告成！</p>
+<h2 id="利用过程"><a href="#利用过程" class="headerlink" title="利用过程"></a>利用过程</h2><p>构造在smallbins中有两个chunk:<br><img src="images/1.png" alt><br>修改后面进入的chunk-&gt;bk为fake_chunk1，fd不变，修改fake chunk1-&gt;bk为fake_chunk2：<br><img src="images/2.png" alt><br>接下来我们申请出一个chunk，再次查看：<br><img src="images/3.png" alt><br><img src="images/4.png" alt><br>此时fake_chunk1+0x10进入tcache，fake_chunk2+0x10写入一个libc地址。<br>大功告成！</p>
 <p>注意几点：</p>
 <blockquote>
 <p>1.如果想把chunk放入tcache的同时，还要写入一个地址在fake chunk-&gt;fd中，不仅要提前设置好chunk-&gt;fd，还有chunk-&gt;bk，因为在unlink过程会访问bk（<code>bin-&gt;bk = bck;</code>)，如果是非法地址会导致程序crash。<br>2.设置好tcache剩余chunk的数量</p>
